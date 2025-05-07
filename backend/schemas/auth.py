@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr
+from fastapi import UploadFile
 from typing import Optional
 
 class Token(BaseModel):
@@ -12,10 +13,9 @@ class UserBase(BaseModel):
     名前: str
     メールアドレス: EmailStr
 
-class UserCreate(UserBase):
-    パスワード: str
-
 class UserResponse(UserBase):
+    名前: str
+    メールアドレス: EmailStr
     アバター: Optional[str] = None
     権限: str
 

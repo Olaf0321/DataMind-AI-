@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 
 from database import get_db
-from models import User
+from models.user import ユーザー
 from schemas.auth import Token, UserCreate, UserResponse
 from config import settings
 
@@ -51,7 +51,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     except jwt.JWTError:
         raise credentials_exception
     
-    user = db.query(User).filter(User.メールアドレス == email).first()
+    user = db.query(ユーザー).filter(ユーザー.メールアドレス == email).first()
     if user is None:
         raise credentials_exception
     return user
@@ -59,36 +59,35 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
 @router.post("/signup", response_model=UserResponse)
 async def signup(
     form_data: UserCreate = Depends(),
-    avatar: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db)
 ):
     # Check if user already exists
-    db_user = db.query(User).filter(User.メールアドレス == form_data.メールアドレス).first()
+    db_user = db.query(ユーザー).filter(ユーザー.メールアドレス == form_data.メールアドレス).first()
     if db_user:
         raise HTTPException(status_code=400, detail="このメールアドレスは既に登録されています")
 
     # Handle avatar upload
     avatar_path = None
-    if avatar:
+    if form_data.アバター:
         # Create uploads directory if it doesn't exist
         upload_dir = Path("uploads/avatars")
         upload_dir.mkdir(parents=True, exist_ok=True)
         
         # Save avatar file
-        file_extension = os.path.splitext(avatar.filename)[1]
+        file_extension = os.path.splitext(form_data.アバター.filename)[1]
         avatar_path = f"uploads/avatars/{form_data.メールアドレス}{file_extension}"
         with open(avatar_path, "wb") as buffer:
-            content = await avatar.read()
+            content = await form_data.アバター.read()
             buffer.write(content)
 
     # Create new user
     hashed_password = get_password_hash(form_data.パスワード)
-    db_user = User(
+    db_user = ユーザー(
         名前=form_data.名前,
         メールアドレス=form_data.メールアドレス,
         パスワード=hashed_password,
         アバター=avatar_path,
-        権限="user"  # Default to regular user
+        権限="ユーザー"  # Default to regular user
     )
     
     db.add(db_user)
@@ -99,7 +98,7 @@ async def signup(
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.メールアドレス == form_data.username).first()
+    user = db.query(ユーザー).filter(ユーザー.メールアドレス == form_data.username).first()
     if not user or not verify_password(form_data.password, user.パスワード):
         raise HTTPException(
             status_code=401,
@@ -115,5 +114,5 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/me", response_model=UserResponse)
-async def read_users_me(current_user: User = Depends(get_current_user)):
+async def read_users_me(current_user: ユーザー = Depends(get_current_user)):
     return current_user 

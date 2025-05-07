@@ -1,16 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from typing import Optional
 import bcrypt
-import jwt
+from jose import jwt, JWTError
 from datetime import datetime, timedelta
 import os
 from pathlib import Path
 
 from database import get_db
-from models.user import ユーザー
-from schemas.auth import Token, UserCreate, UserResponse
+from models import ユーザー
+from schemas.auth import Token, UserResponse
 from config import settings
 
 router = APIRouter()
@@ -54,16 +54,30 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     user = db.query(ユーザー).filter(ユーザー.メールアドレス == email).first()
     if user is None:
         raise credentials_exception
-    return user
+    
+    newUser = {
+        "名前": user.名前,
+        "メールアドレス": user.メールアドレス,
+        "アバター": user.アバター,
+        "権限": user.権限
+    }
+    return newUser
 
-@router.post("/signup", response_model=UserResponse)
+@router.post("/signup", response_model=Token)
 async def signup(
-    form_data: UserCreate = Depends(),
+    名前: str = Form(...),
+    メールアドレス: str = Form(...),
+    パスワード: str = Form(...),
+    パスワード確認: str = Form(...),
     avatar: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db)
 ):
+    # Check if passwords match
+    if パスワード != パスワード確認:
+        raise HTTPException(status_code=400, detail="パスワードが一致しません")
+
     # Check if user already exists
-    db_user = db.query(ユーザー).filter(ユーザー.メールアドレス == form_data.メールアドレス).first()
+    db_user = db.query(ユーザー).filter(ユーザー.メールアドレス == メールアドレス).first()
     if db_user:
         raise HTTPException(status_code=400, detail="このメールアドレスは既に登録されています")
 
@@ -76,16 +90,16 @@ async def signup(
         
         # Save avatar file
         file_extension = os.path.splitext(avatar.filename)[1]
-        avatar_path = f"uploads/avatars/{form_data.メールアドレス}{file_extension}"
+        avatar_path = f"uploads/avatars/{メールアドレス}{file_extension}"
         with open(avatar_path, "wb") as buffer:
             content = await avatar.read()
             buffer.write(content)
 
     # Create new user
-    hashed_password = get_password_hash(form_data.パスワード)
+    hashed_password = get_password_hash(パスワード)
     db_user = ユーザー(
-        名前=form_data.名前,
-        メールアドレス=form_data.メールアドレス,
+        名前=名前,
+        メールアドレス=メールアドレス,
         パスワード=hashed_password,
         アバター=avatar_path,
         権限="ユーザー"  # Default to regular user
@@ -94,12 +108,16 @@ async def signup(
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": db_user.メールアドレス}, expires_delta=access_token_expires
+    )
     
-    return db_user
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    print(form_data.username)
     user = db.query(ユーザー).filter(ユーザー.メールアドレス == form_data.username).first()
     if not user or not verify_password(form_data.password, user.パスワード):
         raise HTTPException(
