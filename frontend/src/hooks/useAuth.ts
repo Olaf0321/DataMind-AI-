@@ -10,8 +10,8 @@ interface User {
 }
 
 interface AuthResponse {
-  user: User;
-  token: string;
+  access_token: string;
+  token_type: string;
 }
 
 export function useAuth() {
@@ -22,15 +22,21 @@ export function useAuth() {
   const signup = useCallback(async (formData: FormData) => {
     try {
       setLoading(true);
-      const response = await apiClient.post<AuthResponse>('/auth/signup', formData, {
+      const response = await apiClient.post<User>('/auth/signup', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      const { user, token } = response.data;
-      localStorage.setItem('token', token);
-      setUser(user);
+      // After successful signup, login the user
+      const loginResponse = await apiClient.post<AuthResponse>('/auth/login', {
+        username: formData.get('メールアドレス'),
+        password: formData.get('パスワード'),
+      });
+
+      const { access_token } = loginResponse.data;
+      localStorage.setItem('token', access_token);
+      setUser(response.data);
       router.push('/dashboard');
     } catch (error) {
       console.error('Signup error:', error);
@@ -40,17 +46,21 @@ export function useAuth() {
     }
   }, [router]);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (formData: FormData) => {
     try {
       setLoading(true);
-      const response = await apiClient.post<AuthResponse>('/auth/login', {
-        メールアドレス: email,
-        パスワード: password,
+      const response = await apiClient.post<AuthResponse>('/auth/login', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
       });
 
-      const { user, token } = response.data;
-      localStorage.setItem('token', token);
-      setUser(user);
+      const { access_token } = response.data;
+      localStorage.setItem('token', access_token);
+
+      // Get user data
+      const userResponse = await apiClient.get<User>('/auth/me');
+      setUser(userResponse.data);
       router.push('/dashboard');
     } catch (error) {
       console.error('Login error:', error);

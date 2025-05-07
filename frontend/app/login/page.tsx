@@ -17,7 +17,11 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      await login(data);
+      console.log(data.username, data.password);
+      const formData = new FormData();
+      formData.append("username", data.username);
+      formData.append("password", data.password);
+      await login(formData)
     } catch (error) {
       setError('ログインに失敗しました。メールアドレスとパスワードを確認してください。');
     }
