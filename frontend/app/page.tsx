@@ -105,8 +105,10 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
+import { AxiosError } from 'axios';
 
 interface LoginForm {
   username: string;
@@ -115,14 +117,25 @@ interface LoginForm {
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const [error, setError] = useState('');
+  const router = useRouter();
+  const [error, setError] = useState<string>('');
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      await login(data);
-    } catch (error) {
-      setError('ログインに失敗しました。メールアドレスとパスワードを確認してください。');
+      setIsLoading(true);
+      setError('');
+      await login(data.username, data.password);
+      router.push('/select-query');
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        setError(err.response?.data?.detail || 'ログインに失敗しました');
+      } else {
+        setError('ログインに失敗しました');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -130,25 +143,21 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          DataMind-AI
+          ログイン
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          アカウントをお持ちでない場合は{' '}
-          <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
-            新規登録
-          </Link>
-        </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                 メールアドレス
               </label>
               <div className="mt-1">
                 <input
+                  id="username"
+                  type="email"
                   {...register('username', {
                     required: 'メールアドレスを入力してください',
                     pattern: {
@@ -156,7 +165,6 @@ export default function LoginPage() {
                       message: '有効なメールアドレスを入力してください',
                     },
                   })}
-                  type="email"
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
                 {errors.username && (
@@ -171,14 +179,11 @@ export default function LoginPage() {
               </label>
               <div className="mt-1">
                 <input
+                  id="password"
+                  type="password"
                   {...register('password', {
                     required: 'パスワードを入力してください',
-                    minLength: {
-                      value: 6,
-                      message: 'パスワードは6文字以上で入力してください',
-                    },
                   })}
-                  type="password"
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
                 {errors.password && (
@@ -200,12 +205,26 @@ export default function LoginPage() {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                disabled={isLoading}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
               >
-                ログイン
+                {isLoading ? 'ログイン中...' : 'ログイン'}
               </button>
             </div>
           </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">
+                  アカウントをお持ちでない方は
+                  <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+                    新規登録
+                  </Link>
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

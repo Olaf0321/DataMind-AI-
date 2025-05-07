@@ -46,6 +46,8 @@ export function useAuth() {
 
   const login = useCallback(async (username: string, password: string) => {
     try {
+      console.log('username', username);
+      console.log('password', password);
       const formData = new FormData();
       formData.append('username', username);
       formData.append('password', password);

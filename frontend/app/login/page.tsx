@@ -23,9 +23,11 @@ export default function LoginPage() {
     try {
       setIsLoading(true);
       setError('');
-
+      
+      console.log('data.username', data.username);
+      console.log('data.password', data.password);
       await login(data.username, data.password);
-      router.push('/dashboard');
+      router.push('/select-query');
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.detail || 'ログインに失敗しました');
