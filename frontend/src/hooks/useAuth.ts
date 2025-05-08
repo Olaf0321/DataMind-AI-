@@ -67,7 +67,8 @@ export function useAuth() {
           Authorization: `Bearer ${access_token}`,
         },
       });
-
+      
+      localStorage.setItem("user", JSON.stringify(userResponse.data));
       setUser(userResponse.data);
       return userResponse.data;
     } catch (error) {

@@ -4,6 +4,7 @@ from routers import auth
 from database import engine, Base
 import os
 from dotenv import load_dotenv
+from fastapi.staticfiles import StaticFiles
 
 # Load environment variables from .env
 load_dotenv()
@@ -24,6 +25,9 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+
+# Serve the uploads/avatars directory at /avatars
+app.mount("/avatars", StaticFiles(directory="uploads/avatars"), name="avatars")
 
 @app.get("/")
 async def root():

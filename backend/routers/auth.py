@@ -90,7 +90,7 @@ async def signup(
         
         # Save avatar file
         file_extension = os.path.splitext(avatar.filename)[1]
-        avatar_path = f"uploads/avatars/{メールアドレス}{file_extension}"
+        avatar_path = f"avatars/{メールアドレス}{file_extension}"
         with open(avatar_path, "wb") as buffer:
             content = await avatar.read()
             buffer.write(content)
@@ -118,6 +118,7 @@ async def signup(
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    print(form_data.username)
     user = db.query(ユーザー).filter(ユーザー.メールアドレス == form_data.username).first()
     if not user or not verify_password(form_data.password, user.パスワード):
         raise HTTPException(

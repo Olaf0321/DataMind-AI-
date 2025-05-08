@@ -27,7 +27,7 @@ export default function LoginPage() {
       console.log('data.username', data.username);
       console.log('data.password', data.password);
       await login(data.username, data.password);
-      router.push('/select-query');
+      router.push('/task-list');
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.detail || 'ログインに失敗しました');
