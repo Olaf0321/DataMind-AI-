@@ -66,18 +66,18 @@ export default function Header({ title }: HeaderProps) {
       <div className="flex items-center justify-between h-16 px-8">
         <h1 className="text-xl">{title}</h1>
         <div className="flex items-center space-x-4">
-          <button className="p-2 rounded-full hover:bg-gray-100">
+          <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
             <FaSearch size={18} />
           </button>
-          <button className="p-2 rounded-full hover:bg-gray-100">
+          <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
             <FaBell size={18} />
           </button>
-          <button className="p-2 rounded-full hover:bg-gray-100">
+          <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
             <FiSettings size={18} />
           </button>
           <div className="relative" ref={dropdownRef}>
             <button
-              className="p-1 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="p-1 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
               onClick={() => setDropdownOpen((v) => !v)}
             >
               {user?.アバター ? (
