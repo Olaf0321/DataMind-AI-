@@ -125,7 +125,7 @@ export default function Header({ title }: HeaderProps) {
               </div>
             </div>
             <div className="hidden md:block px-10 pt-2">
-              <Image src="/image-1.png" alt="dashboard" width={160.5} height={80} />
+              <Image src="/images/header-image.png" alt="dashboard" width={160.5} height={80} />
             </div>
           </div>
         </div>

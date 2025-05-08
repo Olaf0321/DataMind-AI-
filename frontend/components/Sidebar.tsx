@@ -29,7 +29,7 @@ export default function Sidebar({ title }: SidebarProps) {
   return (
     <aside className="w-72 bg-[#2A3551] text-white flex flex-col relative min-h-screen">
       <div className="flex items-center h-16 px-3 border-b border-[#2e4066] relative">
-        <Image src="/logo.png" alt="DATAMIND AI" className="cursor-pointer" width={140} height={36} />
+        <Image src="/images/logo.png" alt="DATAMIND AI" className="cursor-pointer" width={140} height={36} />
         <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-md hover:bg-[#2e4066] lg:hidden">
           <FiMenu size={24} />
         </button>
