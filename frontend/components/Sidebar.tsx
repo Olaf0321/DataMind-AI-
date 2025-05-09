@@ -7,10 +7,10 @@ const menuItems = [
   { label: "タスク一覧画面", icon: "/icons/menu-task.png", active: false, link: "/task-list" },
   { label: "SELECT文壁打ち画面", icon: "/icons/menu-check-select.png", active: false, link: "/select-query" },
   { label: "抽出結果表示画面", icon: "/icons/menu-data-result.png", active: false, link: "/result-display" },
-  { label: "成果物管理打ち画面", icon: "/icons/menu-check-artifact.png", active: false, link: "/artifact-management" },
+  { label: "成果物壁打ち画面", icon: "/icons/menu-check-artifact.png", active: false, link: "/artifact-management" },
   { label: "成果物一覧画面", icon: "/icons/menu-artifact-list.png", active: false, link: "/artifact-list" },
-  { label: "SELECT文フロント履歴一覧", icon: "/icons/menu-select-history.png", active: false, link: "/select-history" },
-  { label: "成果物フロント履歴一覧", icon: "/icons/menu-artifact-history.png", active: false, link: "/artifact-history" },
+  { label: "SELECT文プロンプト履歴一覧", icon: "/icons/menu-select-history.png", active: false, link: "/select-history" },
+  { label: "成果物プロンプト履歴一覧", icon: "/icons/menu-artifact-history.png", active: false, link: "/artifact-history" },
 ];
 
 interface SidebarProps {

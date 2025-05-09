@@ -6,6 +6,15 @@ import { FiSettings } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
+const Description = [
+  { label: "タスク一覧画面", description: "各タスクの状態、登録内容、関連成果物などを一目で把握" },
+  { label: "SELECT文壁打ち画面", description: "SELECT文を壁打ちする画面" },
+  { label: "抽出結果表示画面", description: "SELECT文の抽出結果を表示する画面" },
+  { label: "成果物壁打ち画面", description: "成果物を壁打ちする画面" },
+  { label: "成果物一覧画面", description: "成果物を一覧表示する画面" },
+  { label: "SELECT文プロンプト履歴一覧", description: "SELECT文のプロンプト履歴を一覧表示する画面" },
+  { label: "成果物プロンプト履歴一覧", description: "成果物のプロンプト履歴を一覧表示する画面" },
+];
 interface HeaderProps {
   title: string;
 }
@@ -120,7 +129,9 @@ export default function Header({ title }: HeaderProps) {
             <div className="flex-1 p-6">
               <div className="overflow-hidden w-full">
                 <div className="inline-block whitespace-nowrap animate-marquee text-2xl font-semibold">
-                  各タスクの状態、登録内容、関連成果物などを一目で把握
+                  {
+                    Description.find((item) => item.label === title)?.description
+                  }
                 </div>
               </div>
             </div>

@@ -1,11 +1,12 @@
 import React from 'react';
-
+import { useRouter } from 'next/navigation';
 interface AddTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose }) => {
+  const router = useRouter();
   if (!isOpen) return null;
 
   return (
@@ -52,7 +53,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose }) => {
             <button
               type="button"
               className="px-4 py-2 bg-[#243A73] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
-              onClick={onClose}
+              onClick={() => router.push('/select-query')}
             >
               追加
             </button>
