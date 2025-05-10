@@ -1,6 +1,7 @@
 'use client'
 import Layout from "../../components/Layout";
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function ResultDisplayPage() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function ResultDisplayPage() {
                     <td className="px-4 py-3">
                       東京都渋谷区渋谷1-1-1
                     </td>
-                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${i === 0 ? 'rounded-tr-md' : ''} ${i === 9  ? 'rounded-br-md' : ''}`}>
+                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${i === 0 ? 'rounded-tr-md' : ''} ${i === 9 ? 'rounded-br-md' : ''}`}>
                       03-1234-5678
                     </td>
                   </tr>
@@ -46,11 +47,9 @@ export default function ResultDisplayPage() {
             </table>
           </div>
           <div className="flex justify-end items-center mt-auto pt-4 space-x-2">
-            <button className="bg-[#0E538C] text-white rounded-md px-4 py-2 mr-4 cursor-pointer" onClick={() => router.push('/select-query')}>
-            再実行
-            </button>
-            <button className="bg-[#ED601E] text-white rounded-md px-4 py-2 mr-4 cursor-pointer" onClick={() => router.push('/artifact-management')}>
-            確 定
+            <button className="bg-[#0E538C] text-white rounded-md px-4 py-2 mr-4 cursor-pointer flex items-center" onClick={() => router.push('/select-query')}>
+              <Image src="/images/arrow-return.png" alt="back" width={15} height={15} />
+              <span>戻 る</span>
             </button>
           </div>
         </div>
