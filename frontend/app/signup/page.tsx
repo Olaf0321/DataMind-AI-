@@ -71,11 +71,11 @@ export default function SignupPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-[420px]">
-        <div className="bg-[#0E538CB0] opacity-100 pt-28 pb-6 px-4 shadow sm:rounded-2xl sm:px-8 relative">
+        <div className="bg-[#0E538CB0] opacity-100 pt-35 pb-6 px-4 shadow sm:rounded-2xl sm:px-8 relative">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex justify-center absolute top-[-80px] left-[50%] translate-x-[-50%]">
+            {/* <div className="flex justify-center absolute top-[-80px] left-[50%] translate-x-[-50%]">
               <Image src="/images/logo(1).png" alt="logo" width={160} height={160} />
-            </div>
+            </div> */}
             <div className="flex justify-between items-center mb-3">
               <label htmlFor="名前" className="block text-[15px] text-white">
                 ユーザー名
@@ -160,30 +160,40 @@ export default function SignupPage() {
               </div>
             </div>
 
-            <div className="flex justify-between items-center mb-3">
+            <div className="flex justify-center absolute top-[-85px] left-[50%] translate-x-[-50%] items-center mb-3 ml-2">
               <div className="mt-1 flex items-center space-x-4">
                 <label htmlFor="avatar" className='avatar'>
-                  <div className="relative h-20 w-20 overflow-hidden">
-                    {avatarPreview ? (
-                      <Image
-                        src={avatarPreview}
-                        alt="アバター"
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      // <div className="h-full w-full flex items-center justify-center text-gray-400">
-                      //   {/* <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      //     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      //   </svg> */}
-                      // </div>
-                      <div className="h-full w-full flex items-center justify-center text-gray-400 bg-[#0E538CB0] opacity-100">
+                  <div className="relative h-40 w-40 overflow-hidden flex items-center justify-center text-gray-400 bg-transparent opacity-100 cursor-pointer">
+                    <div
+                      className="w-40 aspect-[1/1] bg-white text-xl text-white shadow-md flex items-center justify-center 
+               [clip-path:polygon(50%_0%,93%_25%,93%_75%,50%_100%,7%_75%,7%_25%)] 
+               transition-all duration-300"
+                      style={{ borderRadius: '8px' }}
+                    >
+                      {avatarPreview ? (
+                        <Image
+                          src={avatarPreview}
+                          alt="アバター"
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        // <div className="h-full w-full flex items-center justify-center text-gray-400">
+                        //   {/* <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        //     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        //   </svg> */}
+                        // </div>
+                        // <div className="h-full w-full flex items-center justify-center text-gray-400 bg-[#0E538CB0] opacity-100">
 
-                        <div className="w-40 aspect-[1/1] bg-white flex items-center justify-center text-xl text-white shadow-md transform rotate-90 [clip-path:polygon(25%_6.7%,75%_6.7%,100%_50%,75%_93.3%,25%_93.3%,0%_50%)]">
-                          
+                        //   <div className="w-40 aspect-[1/1] bg-white flex items-center justify-center text-xl text-white shadow-md transform rotate-90 [clip-path:polygon(25%_6.7%,75%_6.7%,100%_50%,75%_93.3%,25%_93.3%,0%_50%)]">
+
+                        //   </div>
+                        // </div>
+                        <div className='cursor-pointer'>
+                          <Image src="/images/logo(1).png" alt="アバター" width={160} height={160} />
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </label>
                 <input
