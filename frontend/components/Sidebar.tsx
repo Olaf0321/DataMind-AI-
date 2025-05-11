@@ -4,13 +4,14 @@ import { FiMenu } from "react-icons/fi";
 import { useRouter } from 'next/navigation';
 
 const menuItems = [
-  { label: "タスク一覧画面", icon: "/icons/menu-task.png", active: false, link: "/task-list" },
-  { label: "SELECT文壁打ち画面", icon: "/icons/menu-check-select.png", active: false, link: "/select-query" },
-  { label: "抽出結果表示画面", icon: "/icons/menu-data-result.png", active: false, link: "/result-display" },
-  { label: "成果物壁打ち画面", icon: "/icons/menu-check-artifact.png", active: false, link: "/artifact-management" },
+  { label: "タスク一覧画面", icon: "/icons/menu-task-list.png", active: false, link: "/task-list" },
+  { label: "SELECT文壁打ち画面", icon: "/icons/menu-select-query.png", active: false, link: "/select-query" },
+  { label: "抽出結果表示画面", icon: "/icons/menu-result-display.png", active: false, link: "/result-display" },
+  { label: "成果物壁打ち画面", icon: "/icons/menu-artifact-management.png", active: false, link: "/artifact-management" },
   { label: "成果物一覧画面", icon: "/icons/menu-artifact-list.png", active: false, link: "/artifact-list" },
   { label: "SELECT文プロンプト履歴一覧", icon: "/icons/menu-select-history.png", active: false, link: "/select-history" },
   { label: "成果物プロンプト履歴一覧", icon: "/icons/menu-artifact-history.png", active: false, link: "/artifact-history" },
+  { label: "ユーザー管理", icon: "/icons/menu-user-management.png", active: false, link: "/user-management" },
 ];
 
 interface SidebarProps {
@@ -27,7 +28,7 @@ export default function Sidebar({ title }: SidebarProps) {
     }
   }
   return (
-    <aside className="w-72 bg-[#2A3551] text-white flex flex-col relative min-h-screen">
+    <aside className="w-72 bg-[#00306A] text-white flex flex-col relative min-h-screen">
       <div className="flex items-center h-16 px-3 border-b border-[#2e4066] relative">
         <Image src="/images/logo.png" alt="DATAMIND AI" className="cursor-pointer" width={140} height={36} />
         <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-md hover:bg-[#2e4066] lg:hidden">

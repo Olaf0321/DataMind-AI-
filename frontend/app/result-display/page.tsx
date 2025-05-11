@@ -1,14 +1,47 @@
 'use client'
 import Layout from "../../components/Layout";
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 export default function ResultDisplayPage() {
   const router = useRouter();
   return (
     <Layout title="抽出結果表示画面">
+      <div className="flex justify-end items-center mb-8">
+        <div className="search-task-button filter-task-button flex items-center">
+          <div className="filter-task-button-label flex">
+            <label className="bg-[#ED601E] text-white px-4 py-2 border-[1px] border-[#ED601E] rounded-l-md">
+              検索方式
+            </label>
+            <select
+              className="bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-r-md cursor-pointer 
+               focus:outline-none focus:border-[#ED601E] focus:rounded-r-md"
+            >
+              <option value="1">全体</option>
+              <option value="2">ID</option>
+              <option value="3">顧客名</option>
+              <option value="4">売上金額</option>
+              <option value="5">購入日</option>
+              <option value="6">商品名</option>
+              <option value="7">支払い方法</option>
+              <option value="8">住所</option>
+              <option value="9">電話番号</option>
+            </select>
+          </div>
+          <div className="search-task-input flex ml-4">
+            <input
+              type="text"
+              className="w-32 bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-l-md 
+               focus:outline-none focus:border-[#ED601E] focus:rounded-l-md"
+            />
+            <label className="bg-[#ED601E] text-white px-4 py-2 border-[1px] border-[#ED601E] rounded-r-md flex justify-between items-center w-18">
+              <span>検</span>
+              <span>索</span>
+            </label>
+          </div>
+        </div>
+      </div>
       <div className="table-auto">
-        <div className="flex flex-col h-[calc(100vh-300px)]">
+        <div className="flex flex-col h-[calc(100vh-350px)]">
           <div className="flex-grow overflow-y-auto">
             <table className="w-full border-collapse text-center">
               <thead className="bg-[#E5E5E5] text-[#4C4C4C] mb-2">
@@ -48,8 +81,10 @@ export default function ResultDisplayPage() {
           </div>
           <div className="flex justify-end items-center mt-auto pt-4 space-x-2">
             <button className="bg-[#0E538C] text-white rounded-md px-4 py-2 mr-4 cursor-pointer flex items-center" onClick={() => router.push('/select-query')}>
-              <Image src="/images/arrow-return.png" alt="back" width={15} height={15} />
-              <span>戻 る</span>
+              再実行
+            </button>
+            <button className="bg-[#FB5B01] text-white rounded-md px-4 py-2 mr-4 cursor-pointer flex items-center" onClick={() => router.push('/artifact-management')}>
+              成果物生成
             </button>
           </div>
         </div>

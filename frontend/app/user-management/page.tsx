@@ -1,10 +1,27 @@
+"use client";
 import Layout from "../../components/Layout";
 import Image from "next/image";
+import { useState } from 'react';
+import AddUserModal from '../../components/AddUserModal';
 
-export default function ArtifactListPage() {
+export default function TaskListPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const submitUser = () => {
+    setIsModalOpen(false);
+  };
+
   return (
-    <Layout title="成果物一覧画面">
-      <div className="flex justify-end items-center mb-8">
+    <Layout title="ユーザー管理">
+      <div className="flex justify-between items-center mb-8">
+        <div className="add-task-button">
+          <button
+            className="bg-[#0E538C] text-white px-6 py-2 rounded-md cursor-pointer flex justify-between items-center"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <span>新規ユーザー登録</span>
+          </button>
+        </div>
         <div className="search-task-button filter-task-button flex items-center">
           <div className="filter-task-button-label flex">
             <label className="bg-[#ED601E] text-white px-4 py-2 border-[1px] border-[#ED601E] rounded-l-md">
@@ -16,11 +33,12 @@ export default function ArtifactListPage() {
             >
               <option value="1">全体</option>
               <option value="2">ID</option>
-              <option value="3">タスク名</option>
-              <option value="4">タスクid</option>
-              <option value="5">生成日</option>
-              <option value="6">生成者</option>
+              <option value="3">ユーザー名</option>
+              <option value="4">メールアドレス</option>
+              <option value="5">登録日</option>
+              <option value="6">最終ログイン</option>
             </select>
+
           </div>
           <div className="search-task-input flex ml-4">
             <input
@@ -33,6 +51,7 @@ export default function ArtifactListPage() {
               <span>索</span>
             </label>
           </div>
+
         </div>
       </div>
       <div className="table-auto">
@@ -42,33 +61,27 @@ export default function ArtifactListPage() {
               <thead className="bg-[#E5E5E5] text-[#4C4C4C] mb-2">
                 <tr>
                   <th className="px-4 py-4 rounded-l-md font-normal">ID</th>
-                  <th className="px-4 py-3 font-normal">タスク名</th>
-                  <th className="px-4 py-3 font-normal">タスクid</th>
-                  <th className="px-4 py-3 font-normal">成果物へのパス</th>
-                  <th className="px-4 py-3 font-normal">生成日</th>
-                  <th className="px-4 py-3 rounded-r-md font-normal">生成者</th>
+                  <th className="px-4 py-3 font-normal">ユーザー名</th>
+                  <th className="px-4 py-3 font-normal">メールアドレス</th>
+                  <th className="px-4 py-3 font-normal">登録日</th>
+                  <th className="px-4 py-3 font-normal">最終ログイン</th>
+                  <th className="px-4 py-3 rounded-r-md font-normal">アクション</th>
                 </tr>
               </thead>
               <tbody className="text-sm mt-2 text-[#0E538C]">
                 <tr>
-                  <td colSpan={8} className="h-3"></td>
+                  <td colSpan={7} className="h-3"></td>
                 </tr>
                 {[...Array(9)].map((_, i) => (
                   <tr key={i} className={i % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
                     <td className={`px-4 py-6 ${i === 0 ? 'rounded-tl-md' : ''} ${i === 8 ? 'rounded-bl-md' : ''}`}>{i + 1}</td>
-                    <td className="px-4 py-3">売上集計</td>
-                    <td className="px-4 py-3">001</td>
-                    <td className="px-4 py-3 flex justify-center">
-                      <span className="mt-3">成果物へのパス</span>
-                      <a href="https://www.google.com" className="underline" target="_blank" rel="noopener noreferrer">
-                        <Image src="/images/go_link.png" className="mt-1" alt="link" width={10} height={10} />
-                      </a>
-                    </td>
-                    <td className="px-4 py-3">
-                      2025-05-10
-                    </td>
+                    <td className="px-4 py-3">山田太郎</td>
+                    <td className="px-4 py-3">yamada@abc.com</td>
+                    <td className="px-4 py-3">2025-05-01</td>
+                    <td className="px-4 py-3">2025-05-10</td>
                     <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${i === 0 ? 'rounded-tr-md' : ''} ${i === 8 ? 'rounded-br-md' : ''}`}>
-                      user123
+                      <button className="bg-[#0E538C] text-white px-3 py-1.5 rounded cursor-pointer">編集</button>
+                      <button className="bg-[#ED601E] text-white px-3 py-1.5 rounded cursor-pointer">削除</button>
                     </td>
                   </tr>
                 ))}
@@ -92,6 +105,11 @@ export default function ArtifactListPage() {
           </div>
         </div>
       </div>
+      <AddUserModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={() => submitUser()}
+      />
     </Layout>
   );
 }

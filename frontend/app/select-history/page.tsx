@@ -1,10 +1,87 @@
 import Layout from "../../components/Layout";
+import Image from "next/image";
 
 export default function SelectHistoryPage() {
   return (
     <Layout title="SELECT文プロンプト履歴一覧">
-      <div className="flex justify-center items-center h-full text-8xl font-bold text-gray-500">
-        空白ページ
+      <div className="flex justify-end items-center mb-8">
+        <div className="search-task-button filter-task-button flex items-center">
+          <div className="filter-task-button-label flex">
+            <label className="bg-[#ED601E] text-white px-4 py-2 border-[1px] border-[#ED601E] rounded-l-md">
+              検索方式
+            </label>
+            <select
+              className="bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-r-md cursor-pointer 
+               focus:outline-none focus:border-[#ED601E] focus:rounded-r-md"
+            >
+              <option value="1">全体</option>
+              <option value="2">ID</option>
+              <option value="3">タスク名</option>
+              <option value="4">タスクid</option>
+              <option value="5">プロンプト</option>
+              <option value="6">生成日</option>
+            </select>
+          </div>
+          <div className="search-task-input flex ml-4">
+            <input
+              type="text"
+              className="w-32 bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-l-md 
+               focus:outline-none focus:border-[#ED601E] focus:rounded-l-md"
+            />
+            <label className="bg-[#ED601E] text-white px-4 py-2 border-[1px] border-[#ED601E] rounded-r-md flex justify-between items-center w-18">
+              <span>検</span>
+              <span>索</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div className="table-auto">
+        <div className="flex flex-col h-[calc(100vh-350px)]">
+          <div className="flex-grow overflow-hidden">
+            <table className="w-full border-collapse text-center">
+              <thead className="bg-[#E5E5E5] text-[#4C4C4C] mb-2">
+                <tr>
+                  <th className="px-4 py-4 rounded-l-md font-normal">ID</th>
+                  <th className="px-4 py-3 font-normal">タスク名</th>
+                  <th className="px-4 py-3 font-normal">タスクid</th>
+                  <th className="px-4 py-3 font-normal">プロンプト</th>
+                  <th className="px-4 py-3 rounded-r-md font-normal">生成日</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm mt-2 text-[#0E538C]">
+                <tr>
+                  <td colSpan={7} className="h-3"></td>
+                </tr>
+                {[...Array(9)].map((_, i) => (
+                  <tr key={i} className={i % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
+                    <td className={`px-4 py-6 ${i === 0 ? 'rounded-tl-md' : ''} ${i === 8 ? 'rounded-bl-md' : ''}`}>{i + 1}</td>
+                    <td className="px-4 py-3">売上集計</td>
+                    <td className="px-4 py-3">001</td>
+                    <td className="px-4 py-3">昨年12月の全ての売上データをください。</td>
+                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${i === 0 ? 'rounded-tr-md' : ''} ${i === 8 ? 'rounded-br-md' : ''}`}>
+                      2025-05-10
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex justify-end items-center mt-auto pt-4 space-x-2">
+            <span className="text-[#737576] mr-4">前へ</span>
+            <button className="px-2 py-1 mr-4">
+              <Image src="/images/arrow-left.png" alt="arrow-left" width={10} height={10} className="cursor-pointer" />
+            </button>
+            <span className="text-[#737576] mr-4">
+              <span className="text-[#737576] w-4 bg-[#F5F5F5]">1</span>
+              <span className="text-[#737576] w-2">/</span>
+              <span className="text-[#737576] w-4">1</span>
+            </span>
+            <button className="px-2 py-1 mr-4">
+              <Image src="/images/arrow-right.png" alt="arrow-right" width={10} height={10} className="cursor-pointer" />
+            </button>
+            <span className="text-[#737576]">次へ</span>
+          </div>
+        </div>
       </div>
     </Layout>
   );

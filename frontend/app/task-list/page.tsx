@@ -14,7 +14,7 @@ export default function TaskListPage() {
       <div className="flex justify-between items-center mb-8">
         <div className="add-task-button">
           <button
-            className="bg-[#243A73] text-white px-6 py-2 rounded-md cursor-pointer flex justify-between items-center w-24"
+            className="bg-[#0E538C] text-white px-6 py-2 rounded-md cursor-pointer flex justify-between items-center w-24"
             onClick={() => setIsModalOpen(true)}
           >
             <span>追</span>
@@ -31,6 +31,11 @@ export default function TaskListPage() {
                focus:outline-none focus:border-[#ED601E] focus:rounded-r-md"
             >
               <option value="1">全体</option>
+              <option value="2">ID</option>
+              <option value="3">タスク名</option>
+              <option value="4">タスクの説明</option>
+              <option value="5">Select文</option>
+              <option value="6">作成者</option>
               <option value="2">作成日</option>
             </select>
 
@@ -52,7 +57,7 @@ export default function TaskListPage() {
       <div className="table-auto">
         <div className="flex flex-col h-[calc(100vh-350px)]">
           <div className="flex-grow overflow-hidden">
-            <table className="w-full border-collapse text-center">
+            <table className="w-full border-collapse text-center  overflow-x-auto">
               <thead className="bg-[#E5E5E5] text-[#4C4C4C] mb-2">
                 <tr>
                   <th className="px-4 py-4 rounded-l-md font-normal">ID</th>
@@ -69,7 +74,7 @@ export default function TaskListPage() {
               </thead>
               <tbody className="text-sm mt-2 text-[#0E538C]">
                 <tr>
-                  <td colSpan={7} className="h-3"></td>
+                  <td colSpan={10} className="h-3"></td>
                 </tr>
                 {[...Array(9)].map((_, i) => (
                   <tr key={i} className={i % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
@@ -79,16 +84,39 @@ export default function TaskListPage() {
                     <td className="px-4 py-3">SELECT * FROM Sales;</td>
                     <td className="px-4 py-3">User_001</td>
                     <td className="px-4 py-3 whitespace-nowrap">2025-05-05<br />09:15:42</td>
-                    <td className="px-4 py-3">
-                      <a className="text-[#0E538C] cursor-pointer" onClick={() => router.push('/artifact-list')}>成果物</a>
+
+                    {/* 成果物 */}
+                    <td className="px-4 py-3 text-center">
+                      <div className="inline-flex justify-center space-x-1">
+                        <span>成果物</span>
+                        <a onClick={() => router.push('/artifact-list')} className="cursor-pointer">
+                          <Image src="/images/go_link.png" alt="link" width={10} height={10} />
+                        </a>
+                      </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <a className="text-[#0E538C] cursor-pointer" onClick={() => router.push('/select-history')}>Select文生成プロンプト</a>
+
+                    {/* Select文生成プロンプト */}
+                    <td className="px-4 py-3 text-center">
+                      <div className="inline-flex justify-center space-x-1">
+                        <span>Select文生成プロンプト</span>
+                        <a onClick={() => router.push('/select-history')} className="cursor-pointer">
+                          <Image src="/images/go_link.png" alt="link" width={10} height={10} />
+                        </a>
+                      </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <a className="text-[#0E538C] cursor-pointer" onClick={() => router.push('/artifact-history')}>成果物生成プロンプト</a>
+
+                    {/* 成果物生成プロンプト */}
+                    <td className="px-4 py-3 text-center">
+                      <div className="inline-flex justify-center space-x-1">
+                        <span>成果物生成プロンプト</span>
+                        <a onClick={() => router.push('/artifact-history')} className="cursor-pointer">
+                          <Image src="/images/go_link.png" alt="link" width={10} height={10} />
+                        </a>
+                      </div>
                     </td>
-                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${i === 0 ? 'rounded-tr-md' : ''} ${i === 8 ? 'rounded-br-md' : ''}`}>
+
+                    {/* 操作 */}
+                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap text-center ${i === 0 ? 'rounded-tr-md' : ''} ${i === 8 ? 'rounded-br-md' : ''}`}>
                       <button className="bg-[#629986] text-white px-3 py-1.5 rounded cursor-pointer">コピー</button>
                       <button className="bg-[#0E538C] text-white px-3 py-1.5 rounded cursor-pointer">実行</button>
                       <button className="bg-[#ED601E] text-white px-3 py-1.5 rounded cursor-pointer">削除</button>
@@ -96,7 +124,9 @@ export default function TaskListPage() {
                   </tr>
                 ))}
               </tbody>
+
             </table>
+
           </div>
           <div className="flex justify-end items-center mt-auto pt-4 space-x-2">
             <span className="text-[#737576] mr-4">前へ</span>

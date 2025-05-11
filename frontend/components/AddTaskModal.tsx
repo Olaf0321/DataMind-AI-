@@ -33,8 +33,8 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose }) => {
             />
             <select className="w-[40%] bg-white border-none p-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 mr-3">
               <option value="1">データベース選択</option>
-              <option value="2">全体</option>
-              <option value="3">作成日</option>
+              <option value="2">製品管理</option>
+              <option value="3">営業管理</option>
             </select>
           </div>
 
@@ -56,7 +56,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose }) => {
             </button>
             <button
               type="button"
-              className="px-4 py-2 bg-[#243A73] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
+              className="px-4 py-2 bg-[#0E538C] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
               onClick={() => router.push('/select-query')}
             >
               追加

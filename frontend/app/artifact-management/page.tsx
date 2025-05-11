@@ -2,10 +2,11 @@
 
 import Layout from "../../components/Layout";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import TaskEndModal from "../../components/TaskEndModal";
+import { useState } from "react";
 
 export default function ArtifactManagementPage() {
-  const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <Layout title="成果物壁打ち画面">
@@ -21,13 +22,10 @@ export default function ArtifactManagementPage() {
             <div className="text-container mb-6">
               <span>
                 グラフを更新しました。<br />青系カラーに変更し、商品名を横軸に表示しました。<br />
-                <a href="https://www.google.com" className="underline" target="_blank" rel="noopener noreferrer">更新後のグラフプレビューを表示</a>
+                <a href="https://www.google.com" className="underline text-black" target="_blank" rel="noopener noreferrer">更新後のグラフプレビューを表示</a>
               </span>
             </div>
             <div className="button-container absolute bottom-2 right-3 flex gap-2">
-              <button className="cursor-pointer" onClick={() => router.push("/artifact-management")}>
-                <Image src="/images/link.png" alt="link" width={20} height={15} />
-              </button>
               <button className="cursor-pointer">
                 <Image src="/images/more.png" alt="more" width={20} height={15} />
               </button>
@@ -44,13 +42,10 @@ export default function ArtifactManagementPage() {
             <div className="text-container mb-6">
               <span>
                 売上データを確認しました。商品の売上ランキングを棒グラフで作成しました。<br />
-                <a href="https://www.google.com" className="underline" target="_blank" rel="noopener noreferrer">グラフプレビューを表示</a>
+                <a href="https://www.google.com" className="underline text-black" target="_blank" rel="noopener noreferrer">グラフプレビューを表示</a>
               </span>
             </div>
             <div className="button-container absolute bottom-2 right-3 flex gap-2">
-              <button className="cursor-pointer" onClick={() => router.push("/artifact-management")}>
-                <Image src="/images/link.png" alt="link" width={20} height={15} />
-              </button>
               <button className="cursor-pointer">
                 <Image src="/images/more.png" alt="more" width={20} height={15} />
               </button>
@@ -95,10 +90,14 @@ export default function ArtifactManagementPage() {
         </div>
 
         <div className="absolute bottom-0 right-8 px-4 py-2 rounded-md bg-[#989898] text-white">
-          <button className="cursor-pointer" onClick={() => router.push("/artifact-management")}>
-          実 行
+          <button className="cursor-pointer" onClick={() => setIsModalOpen(true)}>
+            確 定
           </button>
         </div>
+        <TaskEndModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
       </div>
     </Layout>
   );

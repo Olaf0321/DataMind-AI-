@@ -8,12 +8,13 @@ import { useRouter } from "next/navigation";
 
 const Description = [
   { label: "タスク一覧画面", description: "各タスクの状態、登録内容、関連成果物などを一目で把握" },
-  { label: "SELECT文壁打ち画面", description: "SELECT文を壁打ちする画面" },
-  { label: "抽出結果表示画面", description: "SELECT文の抽出結果を表示する画面" },
-  { label: "成果物壁打ち画面", description: "成果物を壁打ちする画面" },
-  { label: "成果物一覧画面", description: "成果物を一覧表示する画面" },
-  { label: "SELECT文プロンプト履歴一覧", description: "SELECT文のプロンプト履歴を一覧表示する画面" },
-  { label: "成果物プロンプト履歴一覧", description: "成果物のプロンプト履歴を一覧表示する画面" },
+  { label: "SELECT文壁打ち画面", description: "AIを活用して効率的にSELECT文を生成できる画面です。" },
+  { label: "抽出結果表示画面", description: "生成されたSQLクエリで抽出したデータを表示します。" },
+  { label: "成果物壁打ち画面", description: "抽出結果を基に、成果物を生成するためのプロンプトを作成します。" },
+  { label: "成果物一覧画面", description: "タスクごとに生成済みの成果物を一覧表示します。" },
+  { label: "SELECT文プロンプト履歴一覧", description: "過去に生成したSELECT文プロンプトを一覧で確認できます。" },
+  { label: "成果物プロンプト履歴一覧", description: "これまでに作成した成果物生成プロンプトを一覧表示します。" },
+  { label: "ユーザー管理", description: "ユーザー管理を通じて、効率的に権限とアカウントを管理しましょう。" },
 ];
 interface HeaderProps {
   title: string;
@@ -125,7 +126,7 @@ export default function Header({ title }: HeaderProps) {
       {/* Info Card */}
       <div className="flex justify-between px-8 py-6">
         <div className="flex-1">
-          <div className="rounded-xl bg-gradient-to-r from-[#243A73] via-[#A77BB6] to-[#FB5B01] text-white shadow-lg flex items-center">
+          <div className="rounded-xl bg-gradient-to-r from-[#00306A] via-[#A77BB6] to-[#FB5B01] text-white shadow-lg flex items-center">
             <div className="flex-1 p-6">
               <div className="overflow-hidden w-full">
                 <div className="inline-block whitespace-nowrap animate-marquee text-2xl font-semibold">
