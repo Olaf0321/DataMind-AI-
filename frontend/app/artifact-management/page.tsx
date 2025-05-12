@@ -3,17 +3,57 @@
 import Layout from "../../components/Layout";
 import Image from "next/image";
 import TaskEndModal from "../../components/TaskEndModal";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ArtifactManagementPage() {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+  
+    if (!token) {
+      router.push('/login');
+    }
+  }, [router]);
 
   return (
     <Layout title="成果物壁打ち画面">
       <div className="relative w-full h-[calc(100vh-300px)] p-10">
-        <div className="w-full px-4 py-2 rounded-md bg-[#F1F1F1]">
-          <span className="mr-10">タスク名</span>
-          <span className="text-[#0E538C]">月次売上抽出</span>
+        <div className="w-full px-4 py-2 rounded-md bg-[#F1F1F1] flex justify-between">
+          <div className="flex">
+            <span className="mr-10">タスク名</span>
+            <span className="text-[#0E538C]">月次売上抽出</span>
+          </div>
+          <div className="relative" ref={dropdownRef}>
+            <button
+              className="p-1 rounded-full hover:bg-gray-100 focus:outline-none cursor-pointer"
+              onClick={() => setDropdownOpen((v) => !v)}
+            >
+              <Image src="/images/setting.png" alt="more" width={20} height={20} />
+            </button>
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-30 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <div className="px-4 py-3 border-b">
+                  出 力 形 式
+                </div>
+                <select
+                  className="bg-white text-[#4C4C4C] px-3 py-2 rounded-r-md cursor-pointer border-none
+               focus:outline-none focus:rounded-r-md focus: border-none"
+                >
+                  <option value="1" className="bg-[#F1F1F1] border-none">HTML</option>
+                  <option value="2" className="border-none">SVG</option>
+                  <option value="3" className="bg-[#F1F1F1] border-none">画像</option>
+                  <option value="4" className="border-none">CSV</option>
+                  <option value="5" className="bg-[#F1F1F1] border-none">JSON</option>
+                  <option value="6" className="border-none">PlantUML</option>
+                </select>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="dialogue-container flex flex-col-reverse gap-4 text-[#5E5E5E] my-4 h-[68%] overflow-y-auto">

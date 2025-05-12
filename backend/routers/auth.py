@@ -7,11 +7,10 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta
 import os
 from pathlib import Path
-
-from database import get_db
 from models import ユーザー
 from schemas.auth import Token, UserResponse
 from config import settings
+from database.init_db import get_db
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -90,10 +89,15 @@ async def signup(
         
         # Save avatar file
         file_extension = os.path.splitext(avatar.filename)[1]
-        avatar_path = f"avatars/{メールアドレス}{file_extension}"
+        avatar_path = f"uploads/avatars/{メールアドレス}{file_extension}"
         with open(avatar_path, "wb") as buffer:
             content = await avatar.read()
             buffer.write(content)
+        
+        avatar_path = f"avatars/{メールアドレス}{file_extension}"
+    
+    else:
+        avatar_path = f"avatars/default.png"
 
     # Create new user
     hashed_password = get_password_hash(パスワード)

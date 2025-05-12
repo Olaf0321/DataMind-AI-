@@ -1,8 +1,20 @@
 'use client'
 import Layout from "../../components/Layout";
 import Image from "next/image";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ArtifactHistoryPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');  
+
+    if (!token) {
+      router.push('/login');
+    }
+  }, [router]);
+
   return (
     <Layout title="成果物プロンプト履歴一覧">
       <div className="flex justify-end items-center mb-8">
@@ -15,11 +27,11 @@ export default function ArtifactHistoryPage() {
               className="bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-r-md cursor-pointer 
                focus:outline-none focus:border-[#ED601E] focus:rounded-r-md"
             >
-              <option value="1">全体</option>
+              <option value="1" className="bg-[#F1F1F1]">全体</option>
               <option value="2">ID</option>
-              <option value="3">タスク名</option>
+              <option value="3" className="bg-[#F1F1F1]">タスク名</option>
               <option value="4">タスクid</option>
-              <option value="5">プロンプト</option>
+              <option value="5" className="bg-[#F1F1F1]">プロンプト</option>
               <option value="6">生成日</option>
             </select>
           </div>

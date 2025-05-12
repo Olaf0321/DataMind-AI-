@@ -1,15 +1,24 @@
 "use client";
 import Layout from "../../components/Layout";
 import Image from "next/image";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddUserModal from '../../components/AddUserModal';
+import { useRouter } from 'next/navigation';
 
 export default function TaskListPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const router = useRouter();
   const submitUser = () => {
     setIsModalOpen(false);
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+  
+    if (!token) {
+      router.push('/login');
+    }
+  }, [router]);
 
   return (
     <Layout title="ユーザー管理">

@@ -1,9 +1,20 @@
 'use client'
+import { useEffect, useState } from "react";
+
 import Layout from "../../components/Layout";
 import { useRouter } from 'next/navigation';
 
 export default function ResultDisplayPage() {
   const router = useRouter();
+  const [filter, setFilter] = useState('1');
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+  
+    if (!token) {
+      router.push('/login');
+    }
+  }, [router]);
+
   return (
     <Layout title="抽出結果表示画面">
       <div className="flex justify-end items-center mb-8">
@@ -15,29 +26,51 @@ export default function ResultDisplayPage() {
             <select
               className="bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-r-md cursor-pointer 
                focus:outline-none focus:border-[#ED601E] focus:rounded-r-md"
+               onChange={(e) => {
+                setFilter(e.target.value);
+              }}
             >
-              <option value="1">全体</option>
+              <option value="1" className="bg-[#F1F1F1]">全体</option>
               <option value="2">ID</option>
-              <option value="3">顧客名</option>
+              <option value="3" className="bg-[#F1F1F1]">顧客名</option>
               <option value="4">売上金額</option>
-              <option value="5">購入日</option>
+              <option value="5" className="bg-[#F1F1F1]">購入日</option>
               <option value="6">商品名</option>
-              <option value="7">支払い方法</option>
+              <option value="7" className="bg-[#F1F1F1]">支払い方法</option>
               <option value="8">住所</option>
-              <option value="9">電話番号</option>
+              <option value="9" className="bg-[#F1F1F1]">電話番号</option>
             </select>
           </div>
-          <div className="search-task-input flex ml-4">
-            <input
-              type="text"
-              className="w-32 bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-l-md 
+
+          {filter !== '3' ? (
+            <div className="search-task-input flex ml-4">
+              <input
+                type="text"
+                className="w-32 bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-l-md 
                focus:outline-none focus:border-[#ED601E] focus:rounded-l-md"
-            />
-            <label className="bg-[#ED601E] text-white px-4 py-2 border-[1px] border-[#ED601E] rounded-r-md flex justify-between items-center w-18">
-              <span>検</span>
-              <span>索</span>
-            </label>
-          </div>
+              />
+              <label className="bg-[#ED601E] text-white px-4 py-2 border-[1px] border-[#ED601E] rounded-r-md flex justify-between items-center w-18">
+                <span>検</span>
+                <span>索</span>
+              </label>
+            </div>
+          ) : (
+            <div className="search-task-input flex ml-4">
+              <select
+                className="cursor-pointer w-32 bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-l-md 
+               focus:outline-none focus:border-[#ED601E] focus:rounded-l-md"
+              >
+                <option value="1" className="bg-[#F1F1F1]">ユーザー1</option>
+                <option value="2">ユーザー2</option>
+                <option value="3" className="bg-[#F1F1F1]">ユーザー3</option>
+                <option value="4">ユーザー4</option>
+              </select>
+              <label className="bg-[#ED601E] text-white px-4 py-2 border-[1px] border-[#ED601E] rounded-r-md flex justify-between items-center w-18">
+                <span>選</span>
+                <span>択</span>
+              </label>
+            </div>
+          )}
         </div>
       </div>
       <div className="table-auto">

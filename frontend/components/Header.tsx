@@ -87,7 +87,7 @@ export default function Header({ title }: HeaderProps) {
           </button>
           <div className="relative" ref={dropdownRef}>
             <button
-              className="p-1 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+              className="p-1 w-12 h-12 rounded-full hover:bg-gray-100 focus:outline-none cursor-pointer"
               onClick={() => setDropdownOpen((v) => !v)}
             >
               {user?.アバター ? (
@@ -96,7 +96,7 @@ export default function Header({ title }: HeaderProps) {
                   alt="avatar"
                   width={36}
                   height={36}
-                  className="rounded-full object-cover"
+                  className="w-full h-full rounded-full object-cover"
                 />
               ) : (
                 <div className="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
