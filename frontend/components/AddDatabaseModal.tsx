@@ -123,7 +123,7 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, on
               <span className="text-[#FF6161] absolute right-2 top-2 text-[10px]" >必須</span>
             </label>
             <select
-              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black cursor-pointer"}`} 
+              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 cursor-pointer`} 
             >
               <option value="1">1</option>
               <option value="2">2</option>
