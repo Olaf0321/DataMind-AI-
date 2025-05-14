@@ -33,7 +33,9 @@ export default function Sidebar({ title }: SidebarProps) {
 
   useEffect(() => {
     if (role !== 'ユーザー') {
-      setMenuItems([...menuItems, { label: "ユーザー管理", icon: "/icons/menu-user-management.png", active: false, link: "/user-management" }]);
+      setMenuItems([...menuItems, { label: "ユーザー管理", icon: "/icons/menu-user-management.png", active: false, link: "/user-management" },
+      { label: "データベース管理", icon: "/icons/menu-user-management.png", active: false, link: "/database-management" }
+      ]);
     }
   }, [role]);
 
@@ -52,8 +54,8 @@ export default function Sidebar({ title }: SidebarProps) {
               <button
                 onClick={() => router.push(item.link)}
                 className={`w-full flex items-center px-6 py-3 text-sm font-medium rounded-l-full transition-colors cursor-pointer ${item.active
-                    ? "bg-[#FB5B01] text-white"
-                    : "hover:bg-[#2e4066] text-white"
+                  ? "bg-[#FB5B01] text-white"
+                  : "hover:bg-[#2e4066] text-white"
                   }`}
               >
                 <span className="mr-3">

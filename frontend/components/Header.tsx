@@ -15,6 +15,7 @@ const Description = [
   { label: "SELECT文プロンプト履歴一覧", description: "過去に生成したSELECT文プロンプトを一覧で確認できます。" },
   { label: "成果物プロンプト履歴一覧", description: "これまでに作成した成果物生成プロンプトを一覧表示します。" },
   { label: "ユーザー管理", description: "ユーザー管理を通じて、効率的に権限とアカウントを管理しましょう。" },
+  { label: "データベース管理", description: "データベース管理を通じて、効率的にデータベースを管理しましょう。" },
 ];
 interface HeaderProps {
   title: string;

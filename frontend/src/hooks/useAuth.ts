@@ -20,7 +20,6 @@ export function useAuth() {
 
   const signup = useCallback(async (formData: FormData) => {
     try {
-      console.log('formData.avatar', formData.get('avatar'));
       const response = await axios.post<AuthResponse>('http://localhost:8080/auth/signup', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -38,7 +37,6 @@ export function useAuth() {
       });
       
       localStorage.setItem("user", JSON.stringify(userResponse.data));
-      console.log('userData', userResponse.data);
       setUser(userResponse.data);
       return userResponse.data;
     } catch (error) {
@@ -48,8 +46,6 @@ export function useAuth() {
 
   const login = useCallback(async (username: string, password: string) => {
     try {
-      console.log('username', username);
-      console.log('password', password);
       const formData = new FormData();
       formData.append('username', username);
       formData.append('password', password);
