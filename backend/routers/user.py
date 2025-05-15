@@ -66,6 +66,7 @@ async def read_users(db: Session = Depends(get_db)):
     reUsers = []
     for user in users:
         reUser = {
+            "id": user.id,
             "名前": user.名前,
             "メールアドレス": user.メールアドレス,
             "作成日時": user.作成日時,
@@ -74,8 +75,8 @@ async def read_users(db: Session = Depends(get_db)):
         reUsers.append(reUser)
     return {"users": reUsers}
 
-@router.delete("/:id", response_model=Status)
-async def delete_user(db: Session = Depends(get_db)):
-    db.query(ユーザー).filter(ユーザー.id == id).delete()
+@router.delete("/{user_id}", response_model=Status)
+async def delete_user(user_id: int, db: Session = Depends(get_db)):
+    db.query(ユーザー).filter(ユーザー.id == user_id).delete()
     db.commit()
     return {"status": "ユーザーが正常に削除されました"}
