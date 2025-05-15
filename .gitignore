@@ -5,7 +5,6 @@
 *.xlsx
 *.ppt
 *.pptx
-*.txt
 *.csv
 *.node_modules
 *.env

@@ -11,8 +11,10 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL")
     ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD")
     FRONTEND_URL: str = os.getenv("FRONTEND_URL")
+    ALGORITHM: str = os.getenv("ALGORITHM")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
     class Config:
         env_file = ".env"
 
-settings = Settings() 
+settings = Settings()

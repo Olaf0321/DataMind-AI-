@@ -14,11 +14,31 @@ export default function TaskListPage() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-  
+
     if (!token) {
       router.push('/login');
     }
   }, [router]);
+
+  const getUserList = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/auth/me`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error('Error fetching user list:', error);
+    }
+  };
+
+  useEffect(() => {
+    getUserList();
+  }, []);
 
   return (
     <Layout title="ユーザー管理">

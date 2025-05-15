@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth
+from routers import auth, user
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from database.init_db import init_db  # ← renamed for clarity
@@ -27,6 +27,7 @@ def on_startup():
 
 # API routes
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(user.router, prefix="/user", tags=["user"])
 
 # Serve static avatar files
 app.mount("/avatars", StaticFiles(directory="uploads/avatars"), name="avatars")

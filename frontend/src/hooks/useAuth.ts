@@ -20,7 +20,7 @@ export function useAuth() {
 
   const signup = useCallback(async (formData: FormData) => {
     try {
-      const response = await axios.post<AuthResponse>('http://localhost:8080/auth/signup', formData, {
+      const response = await axios.post<AuthResponse>(`${process.env.NEXT_PUBLIC_SERVER_URL}/auth/signup`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -30,7 +30,7 @@ export function useAuth() {
       localStorage.setItem('token', access_token);
 
       // Fetch user data after successful signup
-      const userResponse = await axios.get<User>('http://localhost:8080/auth/me', {
+      const userResponse = await axios.get<User>(`${process.env.NEXT_PUBLIC_SERVER_URL}/auth/me`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
@@ -46,21 +46,26 @@ export function useAuth() {
 
   const login = useCallback(async (username: string, password: string) => {
     try {
+      console.log('Logging in with:', { username, password });
+      // Create FormData object
       const formData = new FormData();
       formData.append('username', username);
       formData.append('password', password);
 
-      const response = await axios.post<AuthResponse>('http://localhost:8080/auth/login', formData, {
+      // const response = await axios.post<AuthResponse>(`${process.env.NEXT_PUBLIC_SERVER_URL}/auth/login`, formData, {
+        const response = await axios.post<AuthResponse>('http://localhost:8080/auth/login', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
+      console.log('Login response:', response.data);
+
       const { access_token } = response.data;
       localStorage.setItem('token', access_token);
 
       // Fetch user data after successful login
-      const userResponse = await axios.get<User>('http://localhost:8080/auth/me', {
+      const userResponse = await axios.get<User>(`${process.env.NEXT_PUBLIC_SERVER_URL}/auth/me`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
