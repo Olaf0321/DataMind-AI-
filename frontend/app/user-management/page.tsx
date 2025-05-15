@@ -5,20 +5,59 @@ import { useEffect, useState } from 'react';
 import AddUserModal from '../../components/AddUserModal';
 import { useRouter } from 'next/navigation';
 
+interface UserFormValues {
+  userName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
 export default function TaskListPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userList, setUserList] = useState([]);
   const router = useRouter();
-  const submitUser = () => {
-    setIsModalOpen(false);
-  };
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
+  const submitUser = async (data: UserFormValues) => {
+    try {
+      if (data.password !== data.confirmPassword) {
+        alert('パスワードが一致しません');
+        return;
+      }
+      if (!data.userName || !data.email || !data.password) {
+        alert('すべてのフィールドを入力してください');
+        return;
+      }
 
-    if (!token) {
-      router.push('/login');
+      const { userName, email, password } = data;
+      console.log(userName, email, password);
+
+      const formData = new FormData();
+      formData.append('名前', userName);
+      formData.append('メールアドレス', email);
+      formData.append('パスワード', password);
+  
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/user`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          // 'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+  
+      const resdata = await response.json();
+      if (resdata.status === 'ユーザーが正常に作成されました') {
+        alert('ユーザーが正常に作成されました');
+        getUserList();
+        setIsModalOpen(false);
+      } else {
+        alert('ユーザーの登録に失敗しました');
+      }
+    } catch (error) {
+      console.error('Error submitting user:', error);
+      alert('ユーザーの登録に失敗しました');
     }
-  }, [router]);
+  };
 
   const getUserList = async () => {
     try {
@@ -30,11 +69,41 @@ export default function TaskListPage() {
         },
       });
       const data = await response.json();
-      console.log(data);
+      setUserList(data.users);
     } catch (error) {
       console.error('Error fetching user list:', error);
     }
   };
+
+  const deleteUser = async (userId: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/user/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const data = await response.json();
+      if (data.status === 'ユーザーが正常に削除されました') {
+        alert('ユーザーが正常に削除されました');
+        getUserList();
+      } else {
+        alert('ユーザーの削除に失敗しました');
+      }
+    }
+    catch (error) {
+      console.error('Error deleting user:', error);
+    }
+  }
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/login');
+    }
+  }, [router]);
+
 
   useEffect(() => {
     getUserList();
@@ -101,16 +170,27 @@ export default function TaskListPage() {
                 <tr>
                   <td colSpan={7} className="h-3"></td>
                 </tr>
-                {[...Array(9)].map((_, i) => (
+                {userList.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="text-center text-[#737576] py-4">
+                      <span className="text-[#737576]">ユーザーが見つかりませんでした。</span>
+                    </td>
+                  </tr>
+                )}
+                {userList.length > 0 && userList.map((user, i) => (
                   <tr key={i} className={i % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
-                    <td className={`px-4 py-6 ${i === 0 ? 'rounded-tl-md' : ''} ${i === 8 ? 'rounded-bl-md' : ''}`}>{i + 1}</td>
-                    <td className="px-4 py-3">山田太郎</td>
-                    <td className="px-4 py-3">yamada@abc.com</td>
-                    <td className="px-4 py-3">2025-05-01</td>
-                    <td className="px-4 py-3">2025-05-10</td>
-                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${i === 0 ? 'rounded-tr-md' : ''} ${i === 8 ? 'rounded-br-md' : ''}`}>
-                      <button className="bg-[#0E538C] text-white px-3 py-1.5 rounded cursor-pointer">編集</button>
-                      <button className="bg-[#ED601E] text-white px-3 py-1.5 rounded cursor-pointer">削除</button>
+                    <td className={`px-4 py-6 ${i === 0 ? 'rounded-tl-md' : ''} ${i === userList.length-1 ? 'rounded-bl-md' : ''}`}>{user['id']}</td>
+                    <td className="px-4 py-3">{user['名前']}</td>
+                    <td className="px-4 py-3">{user['メールアドレス']}</td>
+                    <td className="px-4 py-3">{user['作成日時']}</td>
+                    <td className="px-4 py-3">{user['更新日時']}</td>
+                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${i === 0 ? 'rounded-tr-md' : ''} ${i === userList.length-1 ? 'rounded-br-md' : ''}`}>
+                      <button
+                        className="bg-[#ED601E] text-white px-6 py-2 rounded cursor-pointer"
+                        onClick={() => {
+                          deleteUser(user['id']);
+                        }}
+                      >削除</button>
                     </td>
                   </tr>
                 ))}
@@ -137,7 +217,7 @@ export default function TaskListPage() {
       <AddUserModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={() => submitUser()}
+        onSubmit={submitUser}
       />
     </Layout>
   );

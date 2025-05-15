@@ -46,7 +46,6 @@ export function useAuth() {
 
   const login = useCallback(async (username: string, password: string) => {
     try {
-      console.log('Logging in with:', { username, password });
       // Create FormData object
       const formData = new FormData();
       formData.append('username', username);
@@ -58,8 +57,6 @@ export function useAuth() {
           'Content-Type': 'multipart/form-data',
         },
       });
-
-      console.log('Login response:', response.data);
 
       const { access_token } = response.data;
       localStorage.setItem('token', access_token);

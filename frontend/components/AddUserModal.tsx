@@ -1,12 +1,25 @@
 import React from 'react';
 import Image from 'next/image';
+
+interface UserFormValues {
+  userName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 interface AddUserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit: (data: UserFormValues) => void;
 }
 
 const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSubmit }) => {
+  const [formData, setFormData] = React.useState<UserFormValues>({
+    userName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
   if (!isOpen) return null;
 
   return (
@@ -33,6 +46,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSubmit }
               type="text"
               className="w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0"
               placeholder="山田太郎"
+              value={formData.userName}
+              onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
             />
           </div>
 
@@ -45,6 +60,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSubmit }
               type="text"
               className="w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0"
               placeholder="example@domain.com"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
           </div>
 
@@ -54,9 +71,12 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSubmit }
               <span className="text-[#FF6161] absolute right-5 top-2 text-[13px]" >必須</span>
             </label>
             <input
-              type="text"
+              type="password"
+              autoComplete="new-password"
               className="w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0"
               placeholder="パスワードを入力"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             />
           </div>
 
@@ -66,9 +86,12 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSubmit }
               <span className="text-[#FF6161] absolute right-1 top-2 text-[13px]" >必須</span>
             </label>
             <input
-              type="text"
+              type="password"
+              autoComplete="new-password"
               className="w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0"
               placeholder="パスワードを再入力"
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
             />
           </div>
 
@@ -83,7 +106,13 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSubmit }
             <button
               type="button"
               className="px-4 py-2 bg-[#0E538C] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
-              onClick={onSubmit}
+              onClick={() => {
+                onSubmit(formData);
+                formData.userName = '';
+                formData.email = '';
+                formData.password = '';
+                formData.confirmPassword = '';
+              }}
             >
               追加
             </button>

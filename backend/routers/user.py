@@ -29,13 +29,8 @@ async def add_user(
     名前: str = Form(...),
     メールアドレス: str = Form(...),
     パスワード: str = Form(...),
-    パスワード確認: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    # Check if passwords match
-    if パスワード != パスワード確認:
-        raise HTTPException(status_code=400, detail="パスワードが一致しません")
-
     # Check if user already exists
     db_user = db.query(ユーザー).filter(ユーザー.メールアドレス == メールアドレス).first()
     if db_user:
@@ -53,6 +48,8 @@ async def add_user(
         権限="ユーザー"  # Default to regular user
     )
     
+    print(f"Creating user: {db_user.名前}, {db_user.メールアドレス}, {db_user.パスワード}, {db_user.アバター}, {db_user.権限}")
+    
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -65,6 +62,9 @@ async def read_users(db: Session = Depends(get_db)):
     users = db.query(ユーザー).all()
     reUsers = []
     for user in users:
+        # Skip admin users
+        if user.権限 == "管理者":
+            continue
         reUser = {
             "id": user.id,
             "名前": user.名前,
