@@ -1,13 +1,35 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
+
+interface DatabaseFormValues {
+  databaseType: string;
+  host: string;
+  port: string;
+  databaseName: string;
+  connectionId: string;
+  password: string;
+  filePath: string;
+  userId: number;
+}
+
 interface AddDatabaseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit: (data: DatabaseFormValues) => void;
 }
 
 const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [Datatype, setDatatype] = useState("MySQL");
+  const [formData, setFormData] = useState<DatabaseFormValues>({
+    databaseType: 'MySQL',
+    host: '',
+    port: '',
+    databaseName: '',
+    connectionId: '',
+    password: '',
+    filePath: '',
+    userId: 1,
+  });
   if (!isOpen) return null;
 
   return (
@@ -24,7 +46,7 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, on
           <h2 className="text-[25px] text-black">新規データベース作成</h2>
         </div>
 
-        <form className="space-y-4 text-[13px]">
+        <form className="space-y-4 text-[15px]">
           <div className="flex relative">
             <label className="text-[#898989] flex justify-center w-[40%] bg-white border-none p-2 rounded-l-md focus:outline-none focus:ring-0 relative">
               <span>タイプ</span>
@@ -32,7 +54,10 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, on
             </label>
             <select
               className="w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 cursor-pointer"
-              onChange={(e) => setDatatype(e.target.value)}
+              onChange={(e) => {
+                setDatatype(e.target.value)
+                setFormData({ ...formData, databaseType: e.target.value });
+              }}
             >
               <option value="MySQL">MySQL</option>
               <option value="Oracle">Oracle</option>
@@ -50,6 +75,7 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, on
               className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`} 
               placeholder="localhost"
               disabled={Datatype === "Sqlite"}
+              onChange={(e) => setFormData({ ...formData, host: e.target.value })}
             />
           </div>
 
@@ -63,6 +89,7 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, on
               className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`} 
               placeholder="3306"
               disabled={Datatype === "Sqlite"}
+              onChange={(e) => setFormData({ ...formData, port: e.target.value })}
             />
           </div>
 
@@ -76,6 +103,7 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, on
               className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`} 
               placeholder="test"
               disabled={Datatype === "Sqlite"}
+              onChange={(e) => setFormData({ ...formData, databaseName: e.target.value })}
             />
           </div>
 
@@ -89,6 +117,7 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, on
               className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`} 
               placeholder="root"
               disabled={Datatype === "Sqlite"}
+              onChange={(e) => setFormData({ ...formData, connectionId: e.target.value })}
             />
           </div>
 
@@ -102,6 +131,7 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, on
               className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`} 
               placeholder="root"
               disabled={Datatype === "Sqlite"}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             />
           </div>
 
@@ -114,6 +144,7 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, on
               type="file"
               className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "MySQL" || Datatype === "Oracle" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black cursor-pointer"}`} 
               disabled={Datatype === "MySQL" || Datatype === "Oracle"}
+              onChange={(e) => setFormData({ ...formData, filePath: e.target.value })}
             />
           </div>
 
@@ -123,7 +154,8 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, on
               <span className="text-[#FF6161] absolute right-2 top-2 text-[10px]" >必須</span>
             </label>
             <select
-              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 cursor-pointer`} 
+              className={`w-[60%] bg-white border-noe p-2 rounded-r-md focus:outline-none focus:ring-0 cursor-pointer`} 
+              onChange={(e) => setFormData({ ...formData, userId: Number(e.target.value) })}
             >
               <option value="1">1</option>
               <option value="2">2</option>
@@ -142,7 +174,21 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, on
             <button
               type="button"
               className="px-4 py-2 bg-[#0E538C] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
-              onClick={onSubmit}
+              onClick={()=>{
+                console.log(formData);
+                onSubmit(formData);
+                setFormData({
+                  databaseType: 'MySQL',
+                  host: '',
+                  port: '',
+                  databaseName: '',
+                  connectionId: '',
+                  password: '',
+                  filePath: '',
+                  userId: 1,
+                });
+                setDatatype("MySQL");
+              }}
             >
               追加
             </button>
@@ -153,4 +199,4 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, on
   );
 };
 
-export default AddDatabaseModal; 
+export default AddDatabaseModal;

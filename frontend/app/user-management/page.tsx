@@ -173,7 +173,7 @@ export default function TaskListPage() {
                 {userList.length === 0 && (
                   <tr>
                     <td colSpan={6} className="text-center text-[#737576] py-4">
-                      <span className="text-[#737576]">ユーザーが見つかりませんでした。</span>
+                      <span className="text-[#737576] text-[20px]">ユーザーが見つかりませんでした。</span>
                     </td>
                   </tr>
                 )}

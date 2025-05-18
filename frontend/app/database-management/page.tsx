@@ -5,12 +5,102 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AddDatabaseModal from "../../components/AddDatabaseModal";
 
+interface DatabaseFormValues {
+  databaseType: string;
+  host: string;
+  port: string;
+  databaseName: string;
+  connectionId: string;
+  password: string;
+  filePath: string;
+  userId: number;
+}
+
 export default function DatabaseManagementPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [databaseList, setDatabaseList] = useState([]);
   const router = useRouter();
-  const submitUser = () => {
-    setIsModalOpen(false);
-  };
+  
+  const getDatabaseList = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      const resdata = await response.json();
+      setDatabaseList(resdata);
+      console.log(resdata);
+    } catch (error) {
+      console.error('Error fetching database list:', error);
+      alert('データベースの取得に失敗しました');
+    }
+  }
+
+  const deleteDatabase = async (id: number) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      const resdata = await response.json();
+      if (resdata.id !== undefined) {
+        alert('データベースが正常に削除されました');
+        getDatabaseList();
+      } else {
+        alert('データベースの削除に失敗しました');
+      }
+    } catch (error) {
+      console.error('Error deleting database:', error);
+      alert('データベースの削除に失敗しました');
+    }
+  }
+
+  const submitDatabase = async (data: DatabaseFormValues) => {
+    try {
+      console.log(data);
+      const { databaseType, host, port, databaseName, connectionId, password, filePath, userId } = data;
+
+      const formData = {
+        'タイプ': databaseType,
+        'ホスト': host,
+        'ポート': port,
+        'データベース名': databaseName,
+        '接続ID': connectionId,
+        'パスワード': password,
+        'ファイルパス': filePath,
+        'ユーザーID': userId,
+      };
+
+      console.log(databaseType, host, port, databaseName, connectionId, password, filePath, userId);
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const resdata = await response.json();
+      if (resdata.id !== undefined) {
+        alert('データベースが正常に作成されました');
+        getDatabaseList();
+        setIsModalOpen(false);
+      } else {
+        alert('データベースの登録に失敗しました');
+      }
+    } catch (error) {
+      console.error('Error submitting database:', error);
+      alert('データベースの登録に失敗しました');
+    }
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -19,6 +109,10 @@ export default function DatabaseManagementPage() {
       router.push('/login');
     }
   }, [router]);
+
+  useEffect(() => {
+    getDatabaseList();
+  }, []);
 
   return (
     <Layout title="データベース管理">
@@ -74,9 +168,10 @@ export default function DatabaseManagementPage() {
                   <th className="px-4 py-3 font-normal">ホスト</th>
                   <th className="px-4 py-3 font-normal">ポート</th>
                   <th className="px-4 py-3 font-normal">データベース名</th>
-                  <th className="px-4 py-3 font-normal">ユーザー名</th>
+                  <th className="px-4 py-3 font-normal">接続ID</th>
                   <th className="px-4 py-3 font-normal">パスワード</th>
                   <th className="px-4 py-3 font-normal">ファイルパス</th>
+                  <th className="px-4 py-3 font-normal">ユーザーID</th>
                   <th className="px-4 py-3 rounded-r-md font-normal">アクション</th>
                 </tr>
               </thead>
@@ -84,19 +179,35 @@ export default function DatabaseManagementPage() {
                 <tr>
                   <td colSpan={7} className="h-3"></td>
                 </tr>
-                {[...Array(9)].map((_, i) => (
-                  <tr key={i} className={i % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
-                    <td className={`px-4 py-6 ${i === 0 ? 'rounded-tl-md' : ''} ${i === 8 ? 'rounded-bl-md' : ''}`}>{i + 1}</td>
-                    <td className="px-4 py-3">MySQL</td>
-                    <td className="px-4 py-3">localhost</td>
-                    <td className="px-4 py-3">3306</td>
-                    <td className="px-4 py-3">test</td>
-                    <td className="px-4 py-3">root</td>
-                    <td className="px-4 py-3">root</td>
-                    <td className="px-4 py-3">test</td>
-                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${i === 0 ? 'rounded-tr-md' : ''} ${i === 8 ? 'rounded-br-md' : ''}`}>
+                
+                {databaseList.length === 0 && (
+                  <tr>
+                    <td colSpan={10} className="text-center text-[#737576] py-4">
+                      <span className="text-[#737576] text-[20px]">データベースが見つかりませんでした。</span>
+                    </td>
+                  </tr>
+                )}
+                {databaseList.length > 0 && databaseList.map((database, index) => (
+                  <tr key={index} className={index % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
+                    <td className={`px-4 py-6 ${index === 0 ? 'rounded-tl-md' : ''} ${index === databaseList.length - 1 ? 'rounded-bl-md' : ''}`}>{database['id']}</td>
+                    <td className="px-4 py-3">{database['タイプ']}</td>
+                    <td className="px-4 py-3">{database['ホスト']}</td>
+                    <td className="px-4 py-3">{database['ポート']}</td>
+                    <td className="px-4 py-3">{database['データベース名']}</td>
+                    <td className="px-4 py-3">{database['接続ID']}</td>
+                    <td className="px-4 py-3">{database['パスワード']}</td>
+                    <td className="px-4 py-3">{database['ファイルパス']}</td>
+                    <td className="px-4 py-3">{database['ユーザーID']}</td>
+                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${index === 0 ? 'rounded-tr-md' : ''} ${index === databaseList.length - 1 ? 'rounded-br-md' : ''}`}>
                       <button className="bg-[#0E538C] text-white px-3 py-1.5 rounded cursor-pointer">編集</button>
-                      <button className="bg-[#ED601E] text-white px-3 py-1.5 rounded cursor-pointer">削除</button>
+                      <button 
+                        className="bg-[#ED601E] text-white px-3 py-1.5 rounded cursor-pointer"
+                        onClick={() => {
+                          deleteDatabase(database['id']);
+                        }}
+                      >
+                        削除
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -123,7 +234,7 @@ export default function DatabaseManagementPage() {
       <AddDatabaseModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={() => submitUser()}
+        onSubmit={submitDatabase}
       />
     </Layout>
   );
