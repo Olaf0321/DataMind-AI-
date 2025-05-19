@@ -3,6 +3,7 @@ import Image from "next/image";
 import { FiMenu } from "react-icons/fi";
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { PiArrowCounterClockwiseLight } from "react-icons/pi";
 
 const initialMenuItems = [
   { label: "タスク一覧画面", icon: "/icons/menu-task-list.png", active: false, link: "/task-list" },
@@ -32,7 +33,7 @@ export default function Sidebar({ title }: SidebarProps) {
   }
 
   useEffect(() => {
-    if (role !== 'ユーザー') {
+    if (role === '管理者') {
       setMenuItems([...menuItems, { label: "ユーザー管理", icon: "/icons/menu-user-management.png", active: false, link: "/user-management" },
       { label: "データベース管理", icon: "/icons/menu-user-management.png", active: false, link: "/database-management" }
       ]);
@@ -42,7 +43,7 @@ export default function Sidebar({ title }: SidebarProps) {
     useEffect(() => {
     if (typeof window !== "undefined") {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
-      setRole(user.role || "");
+      setRole(user['権限'] || "");
     }
   }, []);
 
