@@ -1,13 +1,42 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-interface AddTaskModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+
+interface DatabaseFormValues {
+  id: string;
+  タイプ: string;
+  ホスト: string;
+  ポート: string;
+  データベース名: string;
+  接続ID: string;
+  パスワード: string;
+  ファイルパス: string;
+  ユーザーID: number;
 }
 
-const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose }) => {
+interface TaskFormValues {
+  taskName: string;
+  taskDescription: string;
+  databaseId: string;
+}
+
+interface AddTaskModalProps {
+  databaseList: DatabaseFormValues[];
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: TaskFormValues) => void;
+}
+
+const AddTaskModal: React.FC<AddTaskModalProps> = ({ databaseList, isOpen, onClose, onSubmit }) => {
+  console.log('AddTaskModal databaseList:', databaseList);
   const router = useRouter();
+
+  const [formValues, setFormValues] = React.useState<TaskFormValues>({
+    taskName: '',
+    taskDescription: '',
+    databaseId: '1',
+  });
+  
   if (!isOpen) return null;
 
   return (
@@ -29,12 +58,35 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose }) => {
             <input
               type="text"
               className="w-[60%] bg-white border-none p-2 rounded-md focus:outline-none focus:ring-0 mr-3"
+              onChange={(e) => {
+                setFormValues((prev) => ({
+                  ...prev,
+                  taskName: e.target.value,
+                }));
+              }}
               placeholder="タスク名を入力"
             />
-            <select className="w-[40%] bg-white border-none p-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 mr-3">
+            <select
+              className="w-[40%] bg-white border-none p-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 mr-3 text-[12px]"
+              onChange={(e) => {
+                setFormValues((prev) => ({
+                  ...prev,
+                  databaseId: e.target.value,
+                }));
+              }}
+            >
               <option value="1">データベース選択</option>
-              <option value="2">製品管理</option>
-              <option value="3">営業管理</option>
+
+              {databaseList.length === 0 && (
+                <option value="0" disabled className='text-[12px]'>
+                  データベースがありません
+                </option>
+              )}
+              {databaseList.length > 0 && databaseList.map((db) => (
+                <option key={db.データベース名} value={db.id}>
+                  {db.データベース名}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -42,6 +94,12 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose }) => {
             <textarea
               className="bg-white border-none w-full p-2 max-h-[200px] border border-gray-300 rounded-md focus:outline-none focus:ring-0"
               rows={5}
+              onChange={(e) => {
+                setFormValues((prev) => ({
+                  ...prev,
+                  taskDescription: e.target.value,
+                }));
+              }}
               placeholder="タスクの説明を入力"
             />
           </div>
@@ -57,7 +115,10 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose }) => {
             <button
               type="button"
               className="px-4 py-2 bg-[#0E538C] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
-              onClick={() => router.push('/select-query')}
+              onClickCapture={()=>{
+                onSubmit(formValues);
+                router.push('/select-query')
+              }}
             >
               追加
             </button>

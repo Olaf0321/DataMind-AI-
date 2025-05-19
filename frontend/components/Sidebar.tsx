@@ -19,7 +19,7 @@ interface SidebarProps {
 
 export default function Sidebar({ title }: SidebarProps) {
   const router = useRouter();
-  const role = JSON.parse(localStorage.getItem("user") || "{}").権限;
+  const [role, setRole] = useState("");
 
   const [menuItems, setMenuItems] = useState(initialMenuItems);
 
@@ -38,6 +38,13 @@ export default function Sidebar({ title }: SidebarProps) {
       ]);
     }
   }, [role]);
+
+    useEffect(() => {
+    if (typeof window !== "undefined") {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      setRole(user.role || "");
+    }
+  }, []);
 
   return (
     <aside className="w-72 bg-[#00306A] text-white flex flex-col relative min-h-screen">

@@ -12,13 +12,25 @@ interface DatabaseFormValues {
   userId: number;
 }
 
+interface User {
+  id: number;
+  名前: string;
+  メールアドレス: string;
+  パスワード: string;
+  アバター: string;
+  権限: string;
+  作成日時: string;
+  更新日時: string;
+}
+
 interface AddDatabaseModalProps {
+  userList: User[];
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: DatabaseFormValues) => void;
 }
 
-const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, onSubmit }) => {
+const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ userList, isOpen, onClose, onSubmit }) => {
   const [Datatype, setDatatype] = useState("MySQL");
   const [formData, setFormData] = useState<DatabaseFormValues>({
     databaseType: 'MySQL',
@@ -150,16 +162,24 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ isOpen, onClose, on
 
           <div className={`flex relative`}>
             <label className="text-[#898989] flex justify-center w-[40%] bg-white border-none p-2 rounded-l-md focus:outline-none focus:ring-0 relative">
-              <span>ユーザーID</span>
+              <span>ユーザー名</span>
               <span className="text-[#FF6161] absolute right-2 top-2 text-[10px]" >必須</span>
             </label>
             <select
               className={`w-[60%] bg-white border-noe p-2 rounded-r-md focus:outline-none focus:ring-0 cursor-pointer`} 
               onChange={(e) => setFormData({ ...formData, userId: Number(e.target.value) })}
             >
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
+              <option value="1">ユーザー選択</option>
+              {userList.length === 0 && (
+                <option value="0" disabled className='text-[12px]'>
+                  ユーザーがありません
+                </option>
+              )}
+              {userList.length > 0 && userList.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.名前}
+                </option>
+              ))}
             </select>
           </div>
 

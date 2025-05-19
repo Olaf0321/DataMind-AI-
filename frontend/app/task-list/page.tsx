@@ -5,11 +5,64 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AddTaskModal from '../../components/AddTaskModal';
 
+interface TaskFormValues {
+  taskName: string;
+  taskDescription: string;
+  databaseId: string;
+}
+
 export default function TaskListPage() {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filter, setFilter] = useState('1');
+  const [databaseList, setDatabaseList] = useState([]);
+  const [userId, setUserId] = useState<number | -1>(-1);
 
+  const getUserDatabaseList = async (userId: number) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database/list/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const resdata = await response.json();
+      console.log('Database list:', resdata);
+      setDatabaseList(resdata);
+    } catch (error) {
+      console.error('Error fetching database list:', error);
+      alert('データベースの取得に失敗しました');
+    }
+  }
+
+  const onsubmit = async (data: TaskFormValues) => {
+    console.log('Form submitted:', data);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database/init`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          taskName: data.taskName,
+          taskDescription: data.taskDescription,
+          databaseId: data.databaseId,
+          userId: userId,
+        }),
+      });
+      const resdata = await response.json();
+      console.log('Response data:', resdata);
+      if (resdata.status === 'success') {
+        alert('タスクが正常に追加されました');
+        setIsModalOpen(false);
+        getUserDatabaseList(userId);
+      } 
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('タスクの追加に失敗しました');
+    }
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -18,6 +71,15 @@ export default function TaskListPage() {
       router.push('/login');
     }
   }, [router]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const id = Number(JSON.parse(localStorage.getItem("user") || "{}").id);
+      console.log('User ID:', id);
+      setUserId(id);
+      getUserDatabaseList(id);
+    }
+  }, []);
 
   return (
     <Layout title="タスク一覧画面">
@@ -176,8 +238,10 @@ export default function TaskListPage() {
         </div>
       </div>
       <AddTaskModal
+        databaseList={databaseList}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onSubmit={onsubmit}
       />
     </Layout>
   );

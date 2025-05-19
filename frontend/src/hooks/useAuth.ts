@@ -3,10 +3,11 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
 interface User {
-  名前: string;
-  メールアドレス: string;
-  アバター?: string;
-  権限: string;
+  'id': number;
+  '名前': string;
+  'メールアドレス': string;
+  'アバター': string;
+  '権限': string;
 }
 
 interface AuthResponse {
@@ -35,6 +36,8 @@ export function useAuth() {
           Authorization: `Bearer ${access_token}`,
         },
       });
+
+      // console.log('User data:', userResponse);
       
       localStorage.setItem("user", JSON.stringify(userResponse.data));
       setUser(userResponse.data);
@@ -67,6 +70,8 @@ export function useAuth() {
           Authorization: `Bearer ${access_token}`,
         },
       });
+
+      console.log('User data:', userResponse);
       
       localStorage.setItem("user", JSON.stringify(userResponse.data));
       setUser(userResponse.data);

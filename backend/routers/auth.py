@@ -54,12 +54,19 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     if user is None:
         raise credentials_exception
     
+    print("user${user}")
+    print(user.id, user.名前, user.メールアドレス, user.アバター, user.権限)
+    
     newUser = {
+        "id": user.id,
         "名前": user.名前,
         "メールアドレス": user.メールアドレス,
         "アバター": user.アバター,
         "権限": user.権限
     }
+    
+    print("newUser${newUser}")
+    print(newUser["id"], newUser["名前"], newUser["メールアドレス"], newUser["アバター"], newUser["権限"])
     return newUser
 
 @router.post("/signup", response_model=Token)

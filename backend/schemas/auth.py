@@ -14,6 +14,7 @@ class UserBase(BaseModel):
     メールアドレス: EmailStr
 
 class UserResponse(UserBase):
+    id: int
     名前: str
     メールアドレス: EmailStr
     アバター: Optional[str] = None

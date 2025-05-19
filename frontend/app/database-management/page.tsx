@@ -19,6 +19,8 @@ interface DatabaseFormValues {
 export default function DatabaseManagementPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [databaseList, setDatabaseList] = useState([]);
+  const [userList, setUserList] = useState([]);
+
   const router = useRouter();
   
   const getDatabaseList = async () => {
@@ -36,6 +38,23 @@ export default function DatabaseManagementPage() {
     } catch (error) {
       console.error('Error fetching database list:', error);
       alert('データベースの取得に失敗しました');
+    }
+  }
+
+  const getUserList = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/user`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      const resdata = await response.json();
+      setUserList(resdata.users);
+    } catch (error) {
+      console.error('Error fetching user list:', error);
+      alert('ユーザーの取得に失敗しました');
     }
   }
 
@@ -112,6 +131,7 @@ export default function DatabaseManagementPage() {
 
   useEffect(() => {
     getDatabaseList();
+    getUserList();
   }, []);
 
   return (
@@ -232,6 +252,7 @@ export default function DatabaseManagementPage() {
         </div>
       </div>
       <AddDatabaseModal
+        userList={userList}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={submitDatabase}

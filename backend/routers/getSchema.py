@@ -1,3 +1,5 @@
+from sqlalchemy import inspect
+
 def get_schema_information(engine):
     inspector = inspect(engine)
     schema_info = {}

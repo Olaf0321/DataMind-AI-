@@ -2,6 +2,26 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
+class DBBase(BaseModel):
+    タイプ: str
+    ホスト: str
+    ポート: str
+    データベース名: str
+    接続ID: str
+    パスワード: str
+    ファイルパス: Optional[str] = None
+    ユーザーID: int
+    class Config:
+        orm_mode = True
+        
+class TaskBase(BaseModel):
+    taskName: str
+    taskDescription: str
+    databaseId: int
+    userId: int
+    class Config:
+        orm_mode = True
+
 class 外部DBBase(BaseModel):
     タイプ: str
     ホスト: str
