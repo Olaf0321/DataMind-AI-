@@ -73,6 +73,7 @@ def get_detail(db_id: int, db: Session = Depends(get_db)):
 
 @router.put("/{db_id}", response_model=schemas.外部DB表示)
 def update(db_id: int, update_data: schemas.外部DB更新, db: Session = Depends(get_db)):
+    print("update_data:", update_data)
     db_obj = crud.update_db_info(db, db_id, update_data)
     if not db_obj:
         raise HTTPException(status_code=404, detail="情報が見つかりません")

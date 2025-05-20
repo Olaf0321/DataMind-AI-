@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AddTaskModal from '../../components/AddTaskModal';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 interface TaskFormValues {
   taskName: string;
@@ -17,6 +18,7 @@ export default function TaskListPage() {
   const [filter, setFilter] = useState('1');
   const [databaseList, setDatabaseList] = useState([]);
   const [userId, setUserId] = useState<number | -1>(-1);
+  const [isLoading, setIsLoading] = useState(false);
 
   const getUserDatabaseList = async (userId: number) => {
     try {
@@ -37,6 +39,8 @@ export default function TaskListPage() {
 
   const onsubmit = async (data: TaskFormValues) => {
     console.log('Form submitted:', data);
+    setIsModalOpen(false); // モーダルをすぐ閉じる
+    setIsLoading(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database/init`, {
         method: 'POST',
@@ -53,20 +57,23 @@ export default function TaskListPage() {
       });
       const resdata = await response.json();
       console.log('Response data:', resdata);
-      if (resdata.status === 'success') {
-        alert('タスクが正常に追加されました');
-        setIsModalOpen(false);
+      if (resdata.message === "DB接続とスキーマ情報取得が成功しました") {
         getUserDatabaseList(userId);
-      } 
+        router.push('/select-query');
+      } else {
+        alert('タスクの追加に失敗しました');
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('タスクの追加に失敗しました');
+    } finally {
+      setIsLoading(false);
     }
   }
 
+
   useEffect(() => {
     const token = localStorage.getItem('token');
-
     if (!token) {
       router.push('/login');
     }
@@ -83,6 +90,7 @@ export default function TaskListPage() {
 
   return (
     <Layout title="タスク一覧画面">
+      {isLoading && <LoadingSpinner />}
       <div className="flex justify-between items-center mb-8">
         <div className="add-task-button">
           <button

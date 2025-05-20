@@ -117,7 +117,6 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ databaseList, isOpen, onClo
               className="px-4 py-2 bg-[#0E538C] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
               onClickCapture={()=>{
                 onSubmit(formValues);
-                router.push('/select-query')
               }}
             >
               追加

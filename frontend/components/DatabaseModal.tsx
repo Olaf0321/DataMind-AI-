@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 interface DatabaseFormValues {
-  databaseType: string;
-  host: string;
-  port: string;
-  databaseName: string;
-  connectionId: string;
-  password: string;
-  filePath: string;
-  userId: number;
+  'タイプ': string;
+  'ホスト': string;
+  'ポート': string;
+  'データベース名': string;
+  '接続ID': string;
+  'パスワード': string;
+  'ファイルパス': string;
+  'ユーザーID': number;
 }
 
 interface User {
@@ -24,24 +24,34 @@ interface User {
 }
 
 interface AddDatabaseModalProps {
+  selectedId: number;
+  selectedDatabase: DatabaseFormValues;
   userList: User[];
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: DatabaseFormValues) => void;
 }
 
-const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ userList, isOpen, onClose, onSubmit }) => {
-  const [Datatype, setDatatype] = useState("MySQL");
-  const [formData, setFormData] = useState<DatabaseFormValues>({
-    databaseType: 'MySQL',
-    host: '',
-    port: '',
-    databaseName: '',
-    connectionId: '',
-    password: '',
-    filePath: '',
-    userId: 1,
-  });
+const initialFormValues: DatabaseFormValues = {
+  'タイプ': 'MySQL',
+  'ホスト': '',
+  'ポート': '',
+  'データベース名': '',
+  '接続ID': '',
+  'パスワード': '',
+  'ファイルパス': '',
+  'ユーザーID': -1,
+};
+
+const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ selectedId, selectedDatabase, userList, isOpen, onClose, onSubmit }) => {
+  const [Datatype, setDatatype] = useState('');
+  const [formData, setFormData] = useState<DatabaseFormValues>({} as DatabaseFormValues);
+
+  useEffect(() => {
+    setFormData({ ...selectedDatabase });
+    setDatatype(selectedDatabase['タイプ']);
+  }, [selectedDatabase]);
+
   if (!isOpen) return null;
 
   return (
@@ -66,14 +76,15 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ userList, isOpen, o
             </label>
             <select
               className="w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 cursor-pointer"
+              value={formData['タイプ']}
               onChange={(e) => {
                 setDatatype(e.target.value)
-                setFormData({ ...formData, databaseType: e.target.value });
+                setFormData({ ...formData, 'タイプ': e.target.value });
               }}
             >
               <option value="MySQL">MySQL</option>
               <option value="Oracle">Oracle</option>
-              <option value="Sqlite">Sqlite</option>
+              <option value="Sqlite" disabled>Sqlite</option>
             </select>
           </div>
 
@@ -84,10 +95,11 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ userList, isOpen, o
             </label>
             <input
               type="text"
-              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`} 
+              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
               placeholder="localhost"
+              value={formData['ホスト']}
               disabled={Datatype === "Sqlite"}
-              onChange={(e) => setFormData({ ...formData, host: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, 'ホスト': e.target.value })}
             />
           </div>
 
@@ -98,10 +110,11 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ userList, isOpen, o
             </label>
             <input
               type="text"
-              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`} 
+              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
               placeholder="3306"
+              value={formData['ポート']}
               disabled={Datatype === "Sqlite"}
-              onChange={(e) => setFormData({ ...formData, port: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, 'ポート': e.target.value })}
             />
           </div>
 
@@ -112,10 +125,11 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ userList, isOpen, o
             </label>
             <input
               type="text"
-              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`} 
+              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
               placeholder="test"
+              value={formData['データベース名']}
               disabled={Datatype === "Sqlite"}
-              onChange={(e) => setFormData({ ...formData, databaseName: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, 'データベース名': e.target.value })}
             />
           </div>
 
@@ -126,10 +140,11 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ userList, isOpen, o
             </label>
             <input
               type="text"
-              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`} 
+              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
+              value={formData['接続ID']}
               placeholder="root"
               disabled={Datatype === "Sqlite"}
-              onChange={(e) => setFormData({ ...formData, connectionId: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, '接続ID': e.target.value })}
             />
           </div>
 
@@ -140,10 +155,11 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ userList, isOpen, o
             </label>
             <input
               type="password"
-              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`} 
+              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "Sqlite" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`}
+              value={formData['パスワード']}
               placeholder="root"
               disabled={Datatype === "Sqlite"}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, 'パスワード': e.target.value })}
             />
           </div>
 
@@ -154,9 +170,19 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ userList, isOpen, o
             </label>
             <input
               type="file"
-              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "MySQL" || Datatype === "Oracle" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black cursor-pointer"}`} 
+              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${Datatype === "MySQL" || Datatype === "Oracle" ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black cursor-pointer"}`}
               disabled={Datatype === "MySQL" || Datatype === "Oracle"}
-              onChange={(e) => setFormData({ ...formData, filePath: e.target.value })}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  // ブラウザでは本当のパスは取得できないので、擬似的に File オブジェクトをURL化して保存
+                  const fileUrl = URL.createObjectURL(file);
+                  setFormData({ ...formData, 'ファイルパス': fileUrl });
+                  // 必要ならfile自体を別stateで保持し、アップロード時に使う
+                } else {
+                  setFormData({ ...formData, 'ファイルパス': '' });
+                }
+              }}
             />
           </div>
 
@@ -166,10 +192,10 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ userList, isOpen, o
               <span className="text-[#FF6161] absolute right-2 top-2 text-[10px]" >必須</span>
             </label>
             <select
-              className={`w-[60%] bg-white border-noe p-2 rounded-r-md focus:outline-none focus:ring-0 cursor-pointer`} 
-              onChange={(e) => setFormData({ ...formData, userId: Number(e.target.value) })}
+              className={`w-[60%] bg-white border-noe p-2 rounded-r-md focus:outline-none focus:ring-0 cursor-pointer`}
+              onChange={(e) => setFormData({ ...formData, 'ユーザーID': Number(e.target.value) })}
             >
-              <option value="1">ユーザー選択</option>
+              <option value="-1">ユーザー選択</option>
               {userList.length === 0 && (
                 <option value="0" disabled className='text-[12px]'>
                   ユーザーがありません
@@ -194,19 +220,10 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ userList, isOpen, o
             <button
               type="button"
               className="px-4 py-2 bg-[#0E538C] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
-              onClick={()=>{
+              onClick={() => {
                 console.log(formData);
                 onSubmit(formData);
-                setFormData({
-                  databaseType: 'MySQL',
-                  host: '',
-                  port: '',
-                  databaseName: '',
-                  connectionId: '',
-                  password: '',
-                  filePath: '',
-                  userId: 1,
-                });
+                setFormData(initialFormValues);
                 setDatatype("MySQL");
               }}
             >
