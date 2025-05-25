@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
 from models import タスク
-from schemas.task import Status, TaskListResponse
+from schemas.task import Status, TaskListResponse, TaskCreate
 from config import settings
 from database.init_db import get_db
 
@@ -13,17 +13,13 @@ ALGORITHM = settings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 @router.post("/", response_model=Status)
-async def add_user(
-    タスク名: str = Form(...),
-    タスクの説明: str = Form(...),
-    ユーザーID: int = Form(...),
-    db: Session = Depends(get_db)
-):
+async def add_user(data:TaskCreate, db: Session = Depends(get_db)):
+    print('Received data:', data)
     db_task = タスク(
-        タスク名=タスク名,
-        タスクの説明=タスクの説明,
+        タスク名=data.taskName,
+        タスクの説明=data.taskDescription,
         最終的に採用されたSelect文='作成中',
-        ユーザーID=ユーザーID,
+        ユーザーID=data.userId,
     )
     
     db.add(db_task)

@@ -12,11 +12,17 @@ interface TaskFormValues {
   databaseId: string;
 }
 
+interface AddTaskValues {
+  taskName: string;
+  taskDescription: string;
+}
+
 export default function TaskListPage() {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filter, setFilter] = useState('1');
   const [databaseList, setDatabaseList] = useState([]);
+  const [taskList, setTaskList] = useState([]);
   const [userId, setUserId] = useState<number | -1>(-1);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,7 +35,6 @@ export default function TaskListPage() {
         },
       });
       const resdata = await response.json();
-      console.log('Database list:', resdata);
       setDatabaseList(resdata);
     } catch (error) {
       console.error('Error fetching database list:', error);
@@ -37,11 +42,66 @@ export default function TaskListPage() {
     }
   }
 
-  const onsubmit = async (data: TaskFormValues) => {
-    console.log('Form submitted:', data);
-    setIsModalOpen(false); // モーダルをすぐ閉じる
+  const getTaskList = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const resdata = await response.json();
+      setTaskList(resdata.tasks || []);
+    } catch (error) {
+      console.error('Error fetching task list:', error);
+      alert('タスク一覧の取得に失敗しました');
+    }
+  }
+
+  const addTask = async (data: AddTaskValues) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          taskName: data.taskName,
+          taskDescription: data.taskDescription,
+          userId: userId,
+        }),
+      });
+      const resdata = await response.json();
+      console.log('Add task response:', resdata);
+      if (resdata.status === "タスクが正常に作成されました") {
+        getTaskList();
+      } else {
+        alert('タスクの追加に失敗しました');
+      }
+    } catch (error) {
+      console.error('Error adding task:', error);
+      alert('タスクの追加に失敗しました');
+    }
+  }
+
+  const onsubmit = async (data: TaskFormValues, addData: AddTaskValues) => {
     setIsLoading(true);
     try {
+      if (data.taskName.trim() === '' || data.taskDescription.trim() === '') {
+        alert('タスク名とタスクの説明は必須です。');
+        setIsLoading(false);
+        return;
+      }
+      console.log('Submitting form with data:', data.databaseId);
+      if (data.databaseId === '-1') {
+        alert('データベースを選択してください。');
+        setIsLoading(false);
+        return;
+      }
+      setIsModalOpen(false); // モーダルをすぐ閉じる
+      addTask(addData);
+      return; // タスク追加後はここで終了
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database/init`, {
         method: 'POST',
         headers: {
@@ -56,7 +116,6 @@ export default function TaskListPage() {
         }),
       });
       const resdata = await response.json();
-      console.log('Response data:', resdata);
       if (resdata.message === "DB接続とスキーマ情報取得が成功しました") {
         getUserDatabaseList(userId);
         router.push('/select-query');
@@ -71,6 +130,27 @@ export default function TaskListPage() {
     }
   }
 
+  const deleteTask = async (taskId: number) => {
+    if (confirm('このタスクを削除しますか？')) {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/${taskId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        const resdata = await response.json();
+        if (resdata.status === "タスクが正常に削除されました") {
+          getTaskList();
+        } else {
+          alert('タスクの削除に失敗しました');
+        }
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        alert('タスクの削除に失敗しました');
+      }
+    }
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -82,9 +162,9 @@ export default function TaskListPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const id = Number(JSON.parse(localStorage.getItem("user") || "{}").id);
-      console.log('User ID:', id);
       setUserId(id);
       getUserDatabaseList(id);
+      getTaskList();
     }
   }, []);
 
@@ -176,14 +256,21 @@ export default function TaskListPage() {
                 <tr>
                   <td colSpan={10} className="h-3"></td>
                 </tr>
-                {[...Array(9)].map((_, i) => (
-                  <tr key={i} className={i % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
-                    <td className={`px-4 py-6 ${i === 0 ? 'rounded-tl-md' : ''} ${i === 8 ? 'rounded-bl-md' : ''}`}>{i + 1}</td>
-                    <td className="px-4 py-3">売上集計</td>
-                    <td className="px-4 py-3">月別売上を集計する処理です</td>
-                    <td className="px-4 py-3">SELECT * FROM Sales;</td>
-                    <td className="px-4 py-3">User_001</td>
-                    <td className="px-4 py-3 whitespace-nowrap">2025-05-05<br />09:15:42</td>
+                {taskList.length === 0 && (
+                  <tr>
+                    <td colSpan={10} className="text-center text-[#737576] py-4">
+                      <span className="text-[#737576] text-[20px]">タスクが見つかりませんでした。</span>
+                    </td>
+                  </tr>
+                )}
+                {taskList.length > 0 && taskList.map((task, i) => (
+                  <tr key={task['id']} className={i % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
+                    <td className={`px-4 py-6 ${i === 0 ? 'rounded-tl-md' : ''} ${i === taskList.length-1 ? 'rounded-bl-md' : ''}`}>{task['id']}</td>
+                    <td className="px-4 py-3">{task['タスク名']}</td>
+                    <td className="px-4 py-3">{task['タスクの説明']}</td>
+                    <td className="px-4 py-3">{task['最終的に採用されたSelect文']}</td>
+                    <td className="px-4 py-3">{task['作成者']}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">{task['作成日']}</td>
 
                     {/* 成果物 */}
                     <td className="px-4 py-3 text-center">
@@ -219,7 +306,12 @@ export default function TaskListPage() {
                     <td className={`px-4 py-3 space-x-2 whitespace-nowrap text-center ${i === 0 ? 'rounded-tr-md' : ''} ${i === 8 ? 'rounded-br-md' : ''}`}>
                       <button className="bg-[#629986] text-white px-3 py-1.5 rounded cursor-pointer">コピー</button>
                       <button className="bg-[#0E538C] text-white px-3 py-1.5 rounded cursor-pointer">実行</button>
-                      <button className="bg-[#ED601E] text-white px-3 py-1.5 rounded cursor-pointer">削除</button>
+                      <button
+                        className="bg-[#ED601E] text-white px-3 py-1.5 rounded cursor-pointer"
+                        onClick={() => {
+                          deleteTask(task['id']);
+                        }}
+                      >削除</button>
                     </td>
                   </tr>
                 ))}
@@ -250,6 +342,7 @@ export default function TaskListPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={onsubmit}
+        userId={userId}
       />
     </Layout>
   );

@@ -6,6 +6,11 @@ from datetime import datetime
 class Status(BaseModel):
     status: str
 
+class TaskCreate(BaseModel):
+    taskName: str
+    taskDescription: str
+    userId: int
+
 class Task(BaseModel):
     id: int
     タスク名: str

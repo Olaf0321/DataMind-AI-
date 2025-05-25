@@ -1,6 +1,6 @@
-import React from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
+import { isReactCompilerRequired } from 'next/dist/build/swc/generated-native';
 
 interface DatabaseFormValues {
   id: string;
@@ -20,23 +20,37 @@ interface TaskFormValues {
   databaseId: string;
 }
 
+interface AddTaskValues {
+  taskName: string;
+  taskDescription: string;
+}
+
 interface AddTaskModalProps {
   databaseList: DatabaseFormValues[];
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: TaskFormValues) => void;
+  onSubmit: (data: TaskFormValues, addData: AddTaskValues) => void;
+  userId: number;
 }
 
 const AddTaskModal: React.FC<AddTaskModalProps> = ({ databaseList, isOpen, onClose, onSubmit }) => {
-  console.log('AddTaskModal databaseList:', databaseList);
-  const router = useRouter();
-
   const [formValues, setFormValues] = React.useState<TaskFormValues>({
     taskName: '',
     taskDescription: '',
-    databaseId: '1',
+    databaseId: '-1',
   });
-  
+
+  useEffect(() => {
+    // Reset form values when modal opens
+    if (isOpen) {
+      setFormValues({
+        taskName: '',
+        taskDescription: '',
+        databaseId: '-1',
+      });
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -58,6 +72,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ databaseList, isOpen, onClo
             <input
               type="text"
               className="w-[60%] bg-white border-none p-2 rounded-md focus:outline-none focus:ring-0 mr-3"
+              required
               onChange={(e) => {
                 setFormValues((prev) => ({
                   ...prev,
@@ -68,6 +83,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ databaseList, isOpen, onClo
             />
             <select
               className="w-[40%] bg-white border-none p-2 rounded-md cursor-pointer focus:outline-none focus:ring-0 mr-3 text-[12px]"
+              required
               onChange={(e) => {
                 setFormValues((prev) => ({
                   ...prev,
@@ -75,7 +91,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ databaseList, isOpen, onClo
                 }));
               }}
             >
-              <option value="1">データベース選択</option>
+              <option value="-1">データベース選択</option>
 
               {databaseList.length === 0 && (
                 <option value="0" disabled className='text-[12px]'>
@@ -94,6 +110,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ databaseList, isOpen, onClo
             <textarea
               className="bg-white border-none w-full p-2 max-h-[200px] border border-gray-300 rounded-md focus:outline-none focus:ring-0"
               rows={5}
+              required
               onChange={(e) => {
                 setFormValues((prev) => ({
                   ...prev,
@@ -115,8 +132,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ databaseList, isOpen, onClo
             <button
               type="button"
               className="px-4 py-2 bg-[#0E538C] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
-              onClickCapture={()=>{
-                onSubmit(formValues);
+              onClickCapture={() => {
+                onSubmit(formValues, {
+                  taskName: formValues.taskName,
+                  taskDescription: formValues.taskDescription,
+                });
               }}
             >
               追加
@@ -128,4 +148,4 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ databaseList, isOpen, onClo
   );
 };
 
-export default AddTaskModal; 
+export default AddTaskModal;

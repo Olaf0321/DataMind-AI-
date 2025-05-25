@@ -6,8 +6,8 @@ class タスク(Base):
     __tablename__ = "タスク"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    タスク名 = Column(String, nullable=True)
-    タスクの説明 = Column(String, nullable=True)
+    タスク名 = Column(String, nullable=False)
+    タスクの説明 = Column(String, nullable=False)
     最終的に採用されたSelect文 = Column(String, nullable=True)
     ユーザーID = Column(Integer, ForeignKey("ユーザー.id"), nullable=False)
     作成日時 = Column(DateTime, default=datetime.utcnow)
