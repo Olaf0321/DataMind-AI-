@@ -6,13 +6,9 @@ class SELECT文プロンプト(Base):
     __tablename__ = "SELECT文プロンプト"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    タイプ = Column(String, nullable=False)          # 例: postgresql, mysqlなど
-    ホスト = Column(String, nullable=True)          # 例: 127.0.0.1
-    ポート = Column(String, nullable=True)          # 例: 5432
-    データベース名 = Column(String, nullable=True)  # 例: sample_db
-    接続ID = Column(String, nullable=True)          # 接続用のユーザー名など
-    パスワード = Column(String, nullable=True)      # 接続用パスワード
-    ファイルパス = Column(String, nullable=True)     # SQLiteなどで使う
+    タスクID = Column(Integer, ForeignKey("タスク.id"), nullable=False)
     ユーザーID = Column(Integer, ForeignKey("ユーザー.id"), nullable=False)
+    プロンプト = Column(String, nullable=False)
+    抽出データ数 = Column(Integer, nullable=False)
     作成日時 = Column(DateTime, default=datetime.utcnow)
     更新日時 = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

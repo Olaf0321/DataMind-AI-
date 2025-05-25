@@ -4,17 +4,68 @@ import Layout from "../../components/Layout";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useState } from "react";
+
+interface TaskModel {
+  id: number;
+  タスク名: string;
+  タスクの説明: string;
+}
+
+interface SelectPrompt {
+  id: number;
+  taskId: number;
+  prompt: string;
+}
 
 export default function SelectQueryPage() {
   const router = useRouter();
+  const [task, setTask] = useState<TaskModel | null>(null);
+  const [selectPrompt, setSelectPrompt] = useState<SelectPrompt | null>(null);
+
+  const getSelectPrompt = async () => {
+    if (!task) return;
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/selectPrompt/${task['id']}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const resdata = await response.json();
+      if (resdata.status === "タスクが正常に削除されました") {
+        
+      } else {
+        alert('タスクの削除に失敗しました');
+      }
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      alert('タスクの削除に失敗しました');
+    }
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-  
+    const taskInfo = localStorage.getItem('task') || null;
+
     if (!token) {
       router.push('/login');
+    } else {
+      if (taskInfo === null) {
+        // If no task info is found, redirect to task list
+        router.push('/task-list');
+      } else {
+        setTask(JSON.parse(taskInfo || '{}'));
+      }
     }
   }, [router]);
+
+  useEffect(() => {
+    if (task) {
+      getSelectPrompt();
+    }
+  }, [task]);
+
 
   return (
     <Layout title="SELECT文壁打ち画面">

@@ -75,6 +75,12 @@ export default function TaskListPage() {
       const resdata = await response.json();
       console.log('Add task response:', resdata);
       if (resdata.status === "タスクが正常に作成されました") {
+        const taskInfo = resdata.task;
+        localStorage.setItem('task', JSON.stringify({
+          id: taskInfo['id'],
+          taskName: taskInfo['タスク名'],
+          taskDescription: taskInfo['タスクの説明'],
+        }));
         getTaskList();
       } else {
         alert('タスクの追加に失敗しました');
@@ -93,7 +99,6 @@ export default function TaskListPage() {
         setIsLoading(false);
         return;
       }
-      console.log('Submitting form with data:', data.databaseId);
       if (data.databaseId === '-1') {
         alert('データベースを選択してください。');
         setIsLoading(false);
@@ -101,7 +106,7 @@ export default function TaskListPage() {
       }
       setIsModalOpen(false); // モーダルをすぐ閉じる
       addTask(addData);
-      return; // タスク追加後はここで終了
+      return;
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database/init`, {
         method: 'POST',
         headers: {

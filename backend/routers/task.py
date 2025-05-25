@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
 from models import タスク
-from schemas.task import Status, TaskListResponse, TaskCreate
+from schemas.task import Status, TaskListResponse, TaskCreate, StatusAndResult
 from config import settings
 from database.init_db import get_db
 
@@ -12,9 +12,8 @@ SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
-@router.post("/", response_model=Status)
+@router.post("/", response_model=StatusAndResult)
 async def add_user(data:TaskCreate, db: Session = Depends(get_db)):
-    print('Received data:', data)
     db_task = タスク(
         タスク名=data.taskName,
         タスクの説明=data.taskDescription,
@@ -26,7 +25,17 @@ async def add_user(data:TaskCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_task)
     
-    return {"status": "タスクが正常に作成されました"}
+    newTask = db.query(タスク).filter(タスク.id == db_task.id).first()
+    
+    resTask = {
+        "id": newTask.id,
+        "タスク名": newTask.タスク名,
+        "タスクの説明": newTask.タスクの説明,
+    }
+    
+    print(f"タスクが正常に作成されました: {resTask}")
+    
+    return {"status": "タスクが正常に作成されました", "task": resTask}
 
 @router.get("/", response_model=TaskListResponse)
 async def read_users(db: Session = Depends(get_db)):

@@ -5,6 +5,15 @@ from datetime import datetime
 
 class Status(BaseModel):
     status: str
+    
+class Result(BaseModel):
+    id: int
+    タスク名: str
+    タスクの説明: str
+
+class StatusAndResult(BaseModel):
+    status: str
+    task: Result
 
 class TaskCreate(BaseModel):
     taskName: str
