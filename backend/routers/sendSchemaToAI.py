@@ -33,4 +33,3 @@ def send_to_openai(schema_info, azure_endpoint, api_key, deployment_name, api_ve
     
     # return response['choices'][0]['message']['content']
     return response.output_text
-
