@@ -102,26 +102,26 @@ export default function TaskListPage() {
       }
       setIsModalOpen(false); // モーダルをすぐ閉じる
       addTask(data);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database/init`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          taskName: data.taskName,
-          taskDescription: data.taskDescription,
-          databaseId: data.databaseId,
-          userId: userId,
-        }),
-      });
-      const resdata = await response.json();
-      if (resdata.message === "DB接続とスキーマ情報取得が成功しました") {
-        getUserDatabaseList(userId);
-        router.push('/select-query');
-      } else {
-        alert('タスクの追加に失敗しました');
-      }
+      // const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database/init`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      //   },
+      //   body: JSON.stringify({
+      //     taskName: data.taskName,
+      //     taskDescription: data.taskDescription,
+      //     databaseId: data.databaseId,
+      //     userId: userId,
+      //   }),
+      // });
+      // const resdata = await response.json();
+      // if (resdata.message === "DB接続とスキーマ情報取得が成功しました") {
+      //   getUserDatabaseList(userId);
+      //   router.push('/select-query');
+      // } else {
+      //   alert('タスクの追加に失敗しました');
+      // }
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('タスクの追加に失敗しました');
