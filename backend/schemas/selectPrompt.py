@@ -21,4 +21,4 @@ class SelectPrompt(BaseModel):
     作成日: datetime
 
 class SelectPromptListResponse(BaseModel):
-    tasks: List[SelectPrompt]
+    selectPrompts: List[SelectPrompt]

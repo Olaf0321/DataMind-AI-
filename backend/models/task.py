@@ -1,6 +1,7 @@
 from sqlalchemy import Column, String, DateTime, Integer, ForeignKey
 from database.init_db import Base
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
 class タスク(Base):
     __tablename__ = "タスク"
@@ -12,3 +13,6 @@ class タスク(Base):
     ユーザーID = Column(Integer, ForeignKey("ユーザー.id"), nullable=False)
     作成日時 = Column(DateTime, default=datetime.utcnow)
     更新日時 = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    SELECT文プロンプト一覧 = relationship("SELECT文プロンプト", back_populates="タスク")
+    ユーザー = relationship("ユーザー", back_populates="タスク一覧")

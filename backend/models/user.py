@@ -15,4 +15,5 @@ class ユーザー(Base):
     作成日時 = Column(DateTime, default=datetime.utcnow)
     更新日時 = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    外部DB一覧 = relationship("外部データベース情報", backref="所有ユーザー", cascade="all, delete")
+    SELECT文プロンプト一覧 = relationship("SELECT文プロンプト", back_populates="ユーザー")
+    タスク一覧 = relationship("タスク", back_populates="ユーザー")
