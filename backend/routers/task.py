@@ -18,6 +18,7 @@ async def add_user(data:TaskCreate, db: Session = Depends(get_db)):
         タスク名=data.taskName,
         タスクの説明=data.taskDescription,
         最終的に採用されたSelect文='作成中',
+        データベースID=data.databaseId,
         ユーザーID=data.userId,
     )
     

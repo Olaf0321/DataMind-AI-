@@ -5,7 +5,7 @@ import crud.database as crud
 import schemas.database as schemas
 from routers.connectDB import connect_to_database
 from routers.getSchema import get_schema_information
-from routers.sendSchemaToAI import send_to_openai
+from routers.sendToAI import send_schema_to_openai
 import os
 
 router = APIRouter()
@@ -44,12 +44,9 @@ async def study_schema(data: schemas.TaskBase, db: Session = Depends(get_db)):
     api_version = os.getenv("AZURE_OPENAI_API_VERSION")
     
     # スキーマ情報をAzure OpenAIに送信
-    response = send_to_openai(
+    response = send_schema_to_openai(
         schema_info,
-        azure_endpoint,
-        api_key,
-        deployment_name,
-        api_version
+        api_key
     )
     
     print("AIからの応答:", response)

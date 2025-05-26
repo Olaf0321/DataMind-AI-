@@ -12,11 +12,6 @@ interface TaskFormValues {
   databaseId: string;
 }
 
-interface AddTaskValues {
-  taskName: string;
-  taskDescription: string;
-}
-
 export default function TaskListPage() {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -58,7 +53,7 @@ export default function TaskListPage() {
     }
   }
 
-  const addTask = async (data: AddTaskValues) => {
+  const addTask = async (data: TaskFormValues) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task`, {
         method: 'POST',
@@ -69,6 +64,7 @@ export default function TaskListPage() {
         body: JSON.stringify({
           taskName: data.taskName,
           taskDescription: data.taskDescription,
+          databaseId: data.databaseId,
           userId: userId,
         }),
       });
@@ -91,7 +87,7 @@ export default function TaskListPage() {
     }
   }
 
-  const onsubmit = async (data: TaskFormValues, addData: AddTaskValues) => {
+  const onsubmit = async (data: TaskFormValues) => {
     setIsLoading(true);
     try {
       if (data.taskName.trim() === '' || data.taskDescription.trim() === '') {
@@ -105,8 +101,7 @@ export default function TaskListPage() {
         return;
       }
       setIsModalOpen(false); // モーダルをすぐ閉じる
-      addTask(addData);
-      return;
+      addTask(data);
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database/init`, {
         method: 'POST',
         headers: {

@@ -13,6 +13,14 @@ interface TaskModel {
   taskDescription: string;
 }
 
+interface UserModel {
+  id: number;
+  アバター: string;
+  メールアドレス: string;
+  名前: string;
+  権限: string;
+}
+
 interface SelectPrompt {
   "id": number,
   "タスク名": string,
@@ -27,8 +35,26 @@ export default function SelectQueryPage() {
   const [task, setTask] = useState<TaskModel | null>(null);
   const [selectPrompts, setSelectPrompts] = useState<SelectPrompt[]>([]);
   const [inputValue, setInputValue] = useState('');
+  const [user, setUser] = useState<UserModel | null>(null);
 
-  const sendSelectPromptToAI = async () => {
+  const getSelectPrompt = async () => {
+    if (!task) return;
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/selectPrompt/${task['id']}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const resdata = await response.json();
+      setSelectPrompts(resdata.selectPrompts);
+    } catch (error) {
+      console.error('Error getting selectPrompt:', error);
+      alert('select文プロンプトのインポートに失敗しました。');
+    }
+  }
+
+  const addSelectPrompt = async () => {
     if (!task) return;
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/selectPrompt`, {
@@ -58,11 +84,38 @@ export default function SelectQueryPage() {
     }
   }
 
+  const sendSelectPromptToAIAndExecute = async () => {
+    if (!task) return;
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/selectPrompt/sendToAIAndexecute`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          taskId: task['id'],
+          prompt: inputValue,
+        }),
+      });
+      // const resdata = await response.json();
+      // if (resdata.success) {
+      //   console.log('AIからの応答:', resdata.response);
+      // } else {
+      //   alert('AIへのプロンプト送信に失敗しました。');
+      // }
+    } catch (error) {
+      console.error('Error sending select prompt to AI:', error);
+      alert('AIへのプロンプト送信に失敗しました。');
+    }
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault(); // 改行を防止
       if (inputValue.trim() !== '') {
-        sendSelectPromptToAI()
+        sendSelectPromptToAIAndExecute();
+        // addSelectPrompt();
         setInputValue(''); // 送信後にクリア
       } else {
         alert('プロンプトを入力してください');
@@ -70,26 +123,10 @@ export default function SelectQueryPage() {
     }
   };
 
-  const getSelectPrompt = async () => {
-    if (!task) return;
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/selectPrompt/${task['id']}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      const resdata = await response.json();
-      setSelectPrompts(resdata.selectPrompts);
-    } catch (error) {
-      console.error('Error getting selectPrompt:', error);
-      alert('select文プロンプトのインポートに失敗しました。');
-    }
-  }
-
   useEffect(() => {
     const token = localStorage.getItem('token');
     const taskInfo = localStorage.getItem('task') || null;
+    const userInfo = localStorage.getItem('user') || null;
 
     if (!token) {
       router.push('/login');
@@ -101,12 +138,13 @@ export default function SelectQueryPage() {
         setTask(JSON.parse(taskInfo || '{}'));
       }
     }
-  }, [router]);
-
-  useEffect(() => {
-    if (task) {
-      getSelectPrompt();
+    if (userInfo !== null) {
+      setUser(JSON.parse(userInfo || '{}'));
     }
+  }, [router]);
+  
+  useEffect(() => {
+    getSelectPrompt();
   }, [task]);
 
 

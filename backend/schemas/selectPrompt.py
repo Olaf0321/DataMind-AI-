@@ -5,6 +5,14 @@ from datetime import datetime
 
 class Status(BaseModel):
     status: str
+    
+class StatusAndResponse(BaseModel):
+    status: str
+    response: str
+
+class Prompt(BaseModel):
+    taskId: int
+    prompt: str
 
 class SelectPromptCreate(BaseModel):
     taskId: int

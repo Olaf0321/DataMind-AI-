@@ -1,7 +1,7 @@
 from openai import OpenAI
 import os
 
-def send_to_openai(schema_info, azure_endpoint, api_key, deployment_name, api_version="2023-05-15"):
+def send_schema_to_openai(schema_info, api_key):
     client = OpenAI(api_key=api_key)
         
 
@@ -31,5 +31,17 @@ def send_to_openai(schema_info, azure_endpoint, api_key, deployment_name, api_ve
         input=total_prompt,
     )
     
-    # return response['choices'][0]['message']['content']
+    # Extract and return the output text
+    return response.output_text
+
+def send_select_prompt_to_openai(prompt, api_key):
+    client = OpenAI(api_key=api_key)
+    
+    # Send prompt
+    response = client.responses.create(
+        model='gpt-4o-mini',
+        input=prompt,
+    )
+    
+    # Extract and return the output text
     return response.output_text

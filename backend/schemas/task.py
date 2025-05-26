@@ -19,6 +19,7 @@ class TaskCreate(BaseModel):
     taskName: str
     taskDescription: str
     userId: int
+    databaseId: int
 
 class Task(BaseModel):
     id: int

@@ -1,11 +1,22 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from models import SELECT文プロンプト, タスク, ユーザー
-from schemas.selectPrompt import Status, SelectPromptListResponse, SelectPromptCreate
+from schemas.selectPrompt import Status, StatusAndResponse, SelectPromptListResponse, SelectPromptCreate, Prompt
 from database.init_db import get_db
 from datetime import datetime
+from routers.sendToAI import send_select_prompt_to_openai
+import os
 
 router = APIRouter()
+
+@router.post("/sendToAIAndexecute", response_model=StatusAndResponse)
+async def send_AI(data:Prompt):
+    api_key = os.getenv("AZURE_OPENAI_API_KEY")
+    
+    response = send_select_prompt_to_openai(data.prompt, api_key)
+    print("AIからの応答:", response)
+    
+    return {"status": "AIへのプロンプト送信が成功しました", "response": response}
 
 @router.post("/", response_model=Status)
 async def add_user(data:SelectPromptCreate, db: Session = Depends(get_db)):
