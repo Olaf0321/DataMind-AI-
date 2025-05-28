@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from fastapi import UploadFile
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 
 class Status(BaseModel):
@@ -8,7 +8,7 @@ class Status(BaseModel):
     
 class StatusAndResponse(BaseModel):
     status: str
-    response: str
+    response: List[Dict[str, Any]]
 
 class Prompt(BaseModel):
     taskId: int
@@ -25,6 +25,7 @@ class SelectPrompt(BaseModel):
     タスク名: str
     ユーザー: str
     プロンプト: str
+    SELECT文: str
     抽出データ数: int
     作成日: datetime
 

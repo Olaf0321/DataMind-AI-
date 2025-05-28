@@ -20,7 +20,7 @@ def send_schema_to_openai(schema_info, api_key):
             type_ = col.get("type", "型不明")
             schema_prompt += f"  - カラム名: {name}（型: {type_}）\n"
             
-    print("スキーマプロンプト:", schema_prompt)
+    # print("スキーマプロンプト:", schema_prompt)
 
     total_prompt = "あなたはSQLの専門家です。ユーザーが提供するデータベーススキーマを記憶し、以降はそれに基づいてSQLのSELECT文を作成してください。"
     total_prompt += f"これが私のデータベーススキーマです:\n{schema_prompt}\nこのスキーマに基づいて、今後ユーザーの要望に応じたデータ抽出クエリを生成してください。"

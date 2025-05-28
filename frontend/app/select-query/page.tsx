@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useState } from "react";
 import React from "react";
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 interface TaskModel {
   id: number;
@@ -36,6 +37,7 @@ export default function SelectQueryPage() {
   const [selectPrompts, setSelectPrompts] = useState<SelectPrompt[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [user, setUser] = useState<UserModel | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const getSelectPrompt = async () => {
     if (!task) return;
@@ -54,38 +56,9 @@ export default function SelectQueryPage() {
     }
   }
 
-  const addSelectPrompt = async () => {
-    if (!task) return;
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/selectPrompt`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          taskId: 1,
-          userId: 2,
-          prompt: inputValue,
-          dataNumber: 12
-        }),
-      });
-      getSelectPrompt();
-      // const resdata = await response.json();
-      // if (resdata.success) {
-      //   setInputValue(''); // 送信後にクリア
-      //   getSelectPrompt(); // 最新のプロンプトを取得
-      // } else {
-      //   alert('プロンプトの実行に失敗しました。');
-      // }
-    } catch (error) {
-      console.error('Error adding select prompt:', error);
-      alert('プロンプトの実行に失敗しました。');
-    }
-  }
-
   const sendSelectPromptToAIAndExecute = async () => {
     if (!task) return;
+    setIsLoading(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/selectPrompt/sendToAIAndexecute`, {
         method: 'POST',
@@ -98,15 +71,15 @@ export default function SelectQueryPage() {
           prompt: inputValue,
         }),
       });
-      // const resdata = await response.json();
-      // if (resdata.success) {
-      //   console.log('AIからの応答:', resdata.response);
-      // } else {
-      //   alert('AIへのプロンプト送信に失敗しました。');
-      // }
+      const resdata = await response.json();
+      console.log('AIからの応答:', resdata);
+      localStorage.setItem('selectedData', JSON.stringify(resdata.response));
+      getSelectPrompt();
     } catch (error) {
       console.error('Error sending select prompt to AI:', error);
       alert('AIへのプロンプト送信に失敗しました。');
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -150,6 +123,7 @@ export default function SelectQueryPage() {
 
   return (
     <Layout title="SELECT文壁打ち画面">
+      {isLoading && <LoadingSpinner />}
       <div className="relative w-full h-[calc(100vh-300px)] p-10">
         <div className="w-full px-4 py-2 rounded-md bg-[#F1F1F1]">
           <span className="mr-10">タスク名</span>
@@ -163,7 +137,7 @@ export default function SelectQueryPage() {
               {/* GPT Message */}
               <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 w-[50%] min-h-[100px]">
                 <div className="text-container mb-6">
-                  <span>「顧客名・売上金額・購入日」を含むデータを {prompt["抽出データ数"]} 件抽出しました。</span>
+                  <span>{prompt["抽出データ数"]} 件抽出しました。</span>
                 </div>
                 <div className="button-container absolute bottom-2 right-3 flex gap-2">
                   <button className="cursor-pointer" onClick={() => router.push("/result-display")}>

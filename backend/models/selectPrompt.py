@@ -10,6 +10,7 @@ class SELECT文プロンプト(Base):
     タスクID = Column(Integer, ForeignKey("タスク.id"), nullable=False)
     ユーザーID = Column(Integer, ForeignKey("ユーザー.id"), nullable=False)
     プロンプト = Column(String, nullable=False)
+    SELECT文 = Column(String, nullable=False)
     抽出データ数 = Column(Integer, nullable=False)
     作成日時 = Column(DateTime, default=datetime.utcnow)
     更新日時 = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

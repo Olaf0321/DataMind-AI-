@@ -7,11 +7,25 @@ import { useRouter } from 'next/navigation';
 export default function ResultDisplayPage() {
   const router = useRouter();
   const [filter, setFilter] = useState('1');
+  const [selectedData, setSelectedData] = useState<[] | null>(null);
+  const [keyValue, setKeyValue] = useState<string[] | null>(null);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
-  
-    if (!token) {
+    const selectedData = localStorage.getItem('selectedData');
+    if (!selectedData) {
+      router.push('/task-list');
+    } else if (!token) {
       router.push('/login');
+    } else {
+      const jsonValue = JSON.parse(selectedData);
+      setSelectedData(jsonValue);
+      const keys = [];
+
+      for (const [key, value] of Object.entries(jsonValue[0])) {
+        keys.push(key);
+      }
+      setKeyValue(keys);
     }
   }, [router]);
 
@@ -26,23 +40,19 @@ export default function ResultDisplayPage() {
             <select
               className="bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-r-md cursor-pointer 
                focus:outline-none focus:border-[#ED601E] focus:rounded-r-md"
-               onChange={(e) => {
+              onChange={(e) => {
                 setFilter(e.target.value);
               }}
             >
-              <option value="1" className="bg-[#F1F1F1]">全体</option>
-              <option value="2">ID</option>
-              <option value="3" className="bg-[#F1F1F1]">顧客名</option>
-              <option value="4">売上金額</option>
-              <option value="5" className="bg-[#F1F1F1]">購入日</option>
-              <option value="6">商品名</option>
-              <option value="7" className="bg-[#F1F1F1]">支払い方法</option>
-              <option value="8">住所</option>
-              <option value="9" className="bg-[#F1F1F1]">電話番号</option>
+              {keyValue && keyValue.map((key, index) => (
+                <option key={index} value={index + 1} className={index % 2 === 0 ? 'bg-[#F1F1F1]' : ''}>
+                  {key}
+                </option>
+              ))}
             </select>
           </div>
 
-          {filter !== '3' ? (
+          {/* {filter !== '3' ? (
             <div className="search-task-input flex ml-4">
               <input
                 type="text"
@@ -70,7 +80,7 @@ export default function ResultDisplayPage() {
                 <span>択</span>
               </label>
             </div>
-          )}
+          )} */}
         </div>
       </div>
       <div className="table-auto">
@@ -79,34 +89,31 @@ export default function ResultDisplayPage() {
             <table className="w-full border-collapse text-center">
               <thead className="bg-[#E5E5E5] text-[#4C4C4C] mb-2">
                 <tr>
-                  <th className="px-4 py-4 rounded-l-md font-normal">ID</th>
-                  <th className="px-4 py-3 font-normal">顧客名</th>
-                  <th className="px-4 py-3 font-normal">売上金額</th>
-                  <th className="px-4 py-3 font-normal">購入日</th>
-                  <th className="px-4 py-3 font-normal">商品名</th>
-                  <th className="px-4 py-3 font-normal">支払い方法</th>
-                  <th className="px-4 py-3 font-normal">住所</th>
-                  <th className="px-4 py-3 rounded-r-md font-normal">電話番号</th>
+                  {keyValue && keyValue.map((key, index) => (
+                    <th key={index} className={`px-4 py-3 font-normal ${index === 0 ? 'rounded-tl-md' : ''} ${index === keyValue.length - 1 ? 'rounded-tr-md' : ''}`}>
+                      {key}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="text-sm mt-2 text-[#0E538C]">
                 <tr>
                   <td colSpan={8} className="h-3"></td>
                 </tr>
-                {[...Array(10)].map((_, i) => (
-                  <tr key={i} className={i % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
-                    <td className={`px-4 py-6 ${i === 0 ? 'rounded-tl-md' : ''} ${i === 9 ? 'rounded-bl-md' : ''}`}>{i + 1}</td>
-                    <td className="px-4 py-3">山田太郎</td>
-                    <td className="px-4 py-3">15,000円</td>
-                    <td className="px-4 py-3">2025-05-01</td>
-                    <td className="px-4 py-3">電気ケトル</td>
-                    <td className="px-4 py-3 whitespace-nowrap">クレジット</td>
-                    <td className="px-4 py-3">
-                      東京都渋谷区渋谷1-1-1
+                {selectedData && selectedData.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="text-center text-gray-500 py-4">
+                      データがありません
                     </td>
-                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${i === 0 ? 'rounded-tr-md' : ''} ${i === 9 ? 'rounded-br-md' : ''}`}>
-                      03-1234-5678
-                    </td>
+                  </tr>
+                )}
+                {selectedData && selectedData.length > 0 && selectedData.map((data, index) => (
+                  <tr key={index} className={index % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
+                    {Object.values(data).map((val, i) => (
+                      <td key={i} className={`px-4 py-3 ${i === 0 ? 'rounded-tl-md' : ''} ${i === Object.keys(data).length - 1 ? 'rounded-tr-md' : ''}`}>
+                        {String(val)}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>

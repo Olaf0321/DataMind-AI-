@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AddTaskModal from '../../components/AddTaskModal';
-import LoadingSpinner from '../../components/LoadingSpinner';
 
 interface TaskFormValues {
   taskName: string;
@@ -19,7 +18,6 @@ export default function TaskListPage() {
   const [databaseList, setDatabaseList] = useState([]);
   const [taskList, setTaskList] = useState([]);
   const [userId, setUserId] = useState<number | -1>(-1);
-  const [isLoading, setIsLoading] = useState(false);
 
   const getUserDatabaseList = async (userId: number) => {
     try {
@@ -88,7 +86,6 @@ export default function TaskListPage() {
   }
 
   const onsubmit = async (data: TaskFormValues) => {
-    setIsLoading(true);
     try {
       if (data.taskName.trim() === '' || data.taskDescription.trim() === '') {
         alert('タスク名とタスクの説明は必須です。');
@@ -102,32 +99,12 @@ export default function TaskListPage() {
       }
       setIsModalOpen(false); // モーダルをすぐ閉じる
       addTask(data);
-      // const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database/init`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      //   },
-      //   body: JSON.stringify({
-      //     taskName: data.taskName,
-      //     taskDescription: data.taskDescription,
-      //     databaseId: data.databaseId,
-      //     userId: userId,
-      //   }),
-      // });
-      // const resdata = await response.json();
-      // if (resdata.message === "DB接続とスキーマ情報取得が成功しました") {
-      //   getUserDatabaseList(userId);
-      //   router.push('/select-query');
-      // } else {
-      //   alert('タスクの追加に失敗しました');
-      // }
+      getUserDatabaseList(userId);
+      router.push('/select-query');
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('タスクの追加に失敗しました');
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   }
 
   const deleteTask = async (taskId: number) => {
@@ -170,7 +147,6 @@ export default function TaskListPage() {
 
   return (
     <Layout title="タスク一覧画面">
-      {isLoading && <LoadingSpinner />}
       <div className="flex justify-between items-center mb-8">
         <div className="add-task-button">
           <button

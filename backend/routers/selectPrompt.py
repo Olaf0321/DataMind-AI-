@@ -10,6 +10,7 @@ import crud.database as crud
 from routers.connectDB import connect_to_database
 from routers.getSchema import get_schema_information
 from routers.extractSelectQuery import extract_select_query
+from sqlalchemy import text
 
 router = APIRouter()
 
@@ -52,31 +53,45 @@ async def send_AI(data:Prompt, db: Session = Depends(get_db)):
     
     sql_query = extract_select_query(response)
     
-    print("AIからの応答:", response)
     print("sql-query:", sql_query)
+    
+    data_list = []
+    
+    # SQLクエリを実行
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(text(sql_query))
+            print("SQLクエリの実行結果:", result)
+            # データを取得
+            data_rows = result.fetchall()
+            column_names = result.keys()
+            print("取得したデータ:", data_rows)
+            print("カラム名:", column_names)
+            # データを辞書形式に変換
+            data_list = [dict(zip(column_names, row)) for row in data_rows]
+            print("辞書形式のデータ:", data_list)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"SQLクエリの実行に失敗しました: {str(e)}")
+    
+    print("データリスト:", len(data_list))
     # AIからの応答をデータベースに保存
     
-    
-    
-    
-    # print("AIからの応答:", response)
-    
-    return {"status": "AIへのプロンプト送信が成功しました", "response": 'response'}
-
-@router.post("/", response_model=Status)
-async def add_user(data:SelectPromptCreate, db: Session = Depends(get_db)):
     db_task = SELECT文プロンプト(
         タスクID=data.taskId,
-        ユーザーID=data.userId,
+        ユーザーID=user_id,
         プロンプト=data.prompt,
-        抽出データ数=data.dataNumber,
+        抽出データ数=len(data_list),
+        SELECT文=sql_query,
     )
     
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
+    print("SELECT文プロンプトが正常に作成されました")
     
-    return {"status": "SELECT文プロンプトが正常に作成されました"}
+    # print("AIからの応答:", response)
+    
+    return {"status": "AIへのプロンプト送信が成功しました", "response": data_list}
 
 @router.get("/", response_model=SelectPromptListResponse)
 async def read_users(db: Session = Depends(get_db)):
@@ -89,6 +104,7 @@ async def read_users(db: Session = Depends(get_db)):
             "タスク名": db.query(タスク).filter(タスク.id == selectPrompt.タスクID).first().タスク名,
             "ユーザー": db.query(ユーザー).filter(ユーザー.id == selectPrompt.ユーザーID).first().名前,
             "プロンプト": selectPrompt.プロンプト,
+            "SELECT文": selectPrompt.SELECT文,
             "抽出データ数": selectPrompt.抽出データ数,
             "作成日": selectPrompt.作成日時.strftime("%Y-%m-%d %H:%M:%S"),
         }
@@ -106,6 +122,7 @@ async def read_users(task_id: int, db: Session = Depends(get_db)):
             "タスク名": db.query(タスク).filter(タスク.id == selectPrompt.タスクID).first().タスク名,
             "ユーザー": db.query(ユーザー).filter(ユーザー.id == selectPrompt.ユーザーID).first().名前,
             "プロンプト": selectPrompt.プロンプト,
+            "SELECT文": selectPrompt.SELECT文,
             "抽出データ数": selectPrompt.抽出データ数,
             "作成日": selectPrompt.作成日時.strftime("%Y-%m-%d %H:%M:%S"),
         }
