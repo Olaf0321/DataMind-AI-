@@ -5,28 +5,118 @@ import Image from "next/image";
 import TaskEndModal from "../../components/TaskEndModal";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import React from "react";
+import LoadingSpinner from '../../components/LoadingSpinner';
+
+interface TaskModel {
+  id: number;
+  taskName: string;
+  taskDescription: string;
+}
+
+interface ArtifactPrompt {
+  "id": number,
+  "タスク名": string,
+  "ユーザー": string,
+  "プロンプト": string,
+  "抽出データ数": number
+  "作成日": string,
+}
 
 export default function ArtifactManagementPage() {
+  const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const router = useRouter();
+  const [task, setTask] = useState<TaskModel | null>(null);
+  const [artifactPrompts, setArtifactPrompts] = useState<ArtifactPrompt[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+
+  const getArtifactPrompt = async () => {
+    if (!task) return;
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/artifactPrompt/${task['id']}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const resdata = await response.json();
+      setArtifactPrompts(resdata.artifactPrompts);
+    } catch (error) {
+      console.error('Error getting artifactPrompt:', error);
+      alert('成果プロンプトのインポートに失敗しました。');
+    }
+  }
+
+  const sendArtifactPromptToAIAndExecute = async () => {
+    if (!task) return;
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/artifactPrompt/sendToAIAndexecute`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          taskId: task['id'],
+          prompt: inputValue,
+        }),
+      });
+      const resdata = await response.json();
+      console.log('AIからの応答:', resdata);
+      getArtifactPrompt();
+    } catch (error) {
+      console.error('Error sending artifact prompt to AI:', error);
+      alert('AIへのプロンプト送信に失敗しました。');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // 改行を防止
+      if (inputValue.trim() !== '') {
+        sendArtifactPromptToAIAndExecute();
+        // addSelectPrompt();
+        setInputValue(''); // 送信後にクリア
+      } else {
+        alert('プロンプトを入力してください');
+      }
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-  
+    const taskInfo = localStorage.getItem('task') || null;
+    const selectedData = localStorage.getItem('selectedData') || null;
+
     if (!token) {
       router.push('/login');
+    } else {
+      if (taskInfo === null || selectedData === null) {
+        router.push('/task-list');
+      } else {
+        setTask(JSON.parse(taskInfo || '{}'));
+      }
     }
   }, [router]);
 
+  useEffect(() => {
+    getArtifactPrompt();
+  }, [task]);
+
   return (
     <Layout title="成果物壁打ち画面">
+      {isLoading && <LoadingSpinner />}
       <div className="relative w-full h-[calc(100vh-300px)] p-10">
         <div className="w-full px-4 py-2 rounded-md bg-[#F1F1F1] flex justify-between">
           <div className="flex">
             <span className="mr-10">タスク名</span>
-            <span className="text-[#0E538C]">月次売上抽出</span>
+            <span className="text-[#0E538C]">{task !== null && task['taskName']}</span>
           </div>
           <div className="relative" ref={dropdownRef}>
             <button
@@ -57,46 +147,27 @@ export default function ArtifactManagementPage() {
         </div>
 
         <div className="dialogue-container flex flex-col-reverse gap-4 text-[#5E5E5E] my-4 h-[68%] overflow-y-auto">
-          {/* GPT Message */}
-          <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 w-[50%] min-h-[100px]">
-            <div className="text-container mb-6">
-              <span>
-                グラフを更新しました。<br />青系カラーに変更し、商品名を横軸に表示しました。<br />
-                <a href="https://www.google.com" className="underline text-black" target="_blank" rel="noopener noreferrer">更新後のグラフプレビューを表示</a>
-              </span>
-            </div>
-            <div className="button-container absolute bottom-2 right-3 flex gap-2">
-              <button className="cursor-pointer">
-                <Image src="/images/more.png" alt="more" width={20} height={15} />
-              </button>
-            </div>
+          {/* Display existing prompts */}
+          {artifactPrompts !== undefined && artifactPrompts.map((prompt: ArtifactPrompt) => (
+            <React.Fragment key={prompt["id"]}>
+              {/* GPT Message */}
+              <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 w-[50%] min-h-[100px]">
+                <div className="text-container mb-6">
+                  <span>{prompt["AI回答"]}</span>
+                </div>
+                <div className="button-container absolute bottom-2 right-3 flex gap-2">
+                  <button className="cursor-pointer">
+                    <Image src="/images/more.png" alt="more" width={20} height={15} />
+                  </button>
+                </div>
+              </div>
 
-          </div>
-
-          {/* User Message */}
-          <div className="user-container self-end bg-[#F1F1F1] rounded-xl px-4 py-2 w-[30%] min-h-[70px]">
-            <span>グラフの色を青系に変更し、商品名を横軸に表示してください。</span>
-          </div>
-          {/* GPT Message */}
-          <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 w-[50%] min-h-[100px]">
-            <div className="text-container mb-6">
-              <span>
-                売上データを確認しました。商品の売上ランキングを棒グラフで作成しました。<br />
-                <a href="https://www.google.com" className="underline text-black" target="_blank" rel="noopener noreferrer">グラフプレビューを表示</a>
-              </span>
-            </div>
-            <div className="button-container absolute bottom-2 right-3 flex gap-2">
-              <button className="cursor-pointer">
-                <Image src="/images/more.png" alt="more" width={20} height={15} />
-              </button>
-            </div>
-
-          </div>
-
-          {/* User Message */}
-          <div className="user-container self-end bg-[#F1F1F1] rounded-xl px-4 py-2 w-[30%] min-h-[70px]">
-            <span>月次売上データをもとに、売上が最も多かった商品のランキングをグラフで表示してください。</span>
-          </div>
+              {/* User Message */}
+              <div className="user-container relative self-end bg-[#F1F1F1] rounded-xl px-4 py-2 w-[30%] min-h-[70px]">
+                {prompt["プロンプト"]}
+              </div>
+            </React.Fragment>
+          ))}
 
           {/* GPT Message */}
           <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 w-[50%] min-h-[100px]">
@@ -125,6 +196,9 @@ export default function ArtifactManagementPage() {
               className="bg-[#F1F1F1] border-none w-full p-2 max-h-[90px] border border-gray-300 rounded-md focus:outline-none focus:ring-0"
               rows={3}
               placeholder="成果物文生成プロンプト入力"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
           </div>
         </div>

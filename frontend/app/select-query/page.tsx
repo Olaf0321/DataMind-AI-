@@ -115,7 +115,7 @@ export default function SelectQueryPage() {
       setUser(JSON.parse(userInfo || '{}'));
     }
   }, [router]);
-  
+
   useEffect(() => {
     getSelectPrompt();
   }, [task]);
@@ -156,47 +156,47 @@ export default function SelectQueryPage() {
             </React.Fragment>
           ))}
 
-        {/* GPT Message */}
-        <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 w-[50%] min-h-[100px]">
-          <div className="text-container mb-4">
-            <span>何を抽出したいですか？</span>
+          {/* GPT Message */}
+          <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 w-[50%] min-h-[100px]">
+            <div className="text-container mb-4">
+              <span>何を抽出したいですか？</span>
+            </div>
+            <div className="button-container absolute bottom-0 right-3">
+              <button className="cursor-pointer">
+                <Image src="/images/more.png" alt="more" width={20} height={15} />
+              </button>
+            </div>
           </div>
-          <div className="button-container absolute bottom-0 right-3">
+        </div>
+
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[70%] h-[22%] p-2 rounded-xl bg-[#F1F1F1]">
+          <div className="flex justify-between">
+            <button className="cursor-pointer">
+              <Image src="/images/add.png" alt="add" width={15} height={15} />
+            </button>
             <button className="cursor-pointer">
               <Image src="/images/more.png" alt="more" width={20} height={15} />
             </button>
           </div>
-        </div>
-      </div>
-
-      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[70%] h-[22%] p-2 rounded-xl bg-[#F1F1F1]">
-        <div className="flex justify-between">
-          <button className="cursor-pointer">
-            <Image src="/images/add.png" alt="add" width={15} height={15} />
-          </button>
-          <button className="cursor-pointer">
-            <Image src="/images/more.png" alt="more" width={20} height={15} />
-          </button>
-        </div>
-        {/* <div className="p-2">
+          {/* <div className="p-2">
             <textarea
               className="bg-[#F1F1F1] border-none w-full p-2 max-h-[90px] border border-gray-300 rounded-md focus:outline-none focus:ring-0"
               rows={3}
               placeholder="SELECT文生成プロンプト入力"
             />
           </div> */}
-        <div className="p-2">
-          <textarea
-            className="bg-[#F1F1F1] border-none w-full p-2 max-h-[90px] border border-gray-300 rounded-md focus:outline-none focus:ring-0"
-            rows={3}
-            placeholder="SELECT文生成プロンプト入力"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
+          <div className="p-2">
+            <textarea
+              className="bg-[#F1F1F1] border-none w-full p-2 max-h-[90px] border border-gray-300 rounded-md focus:outline-none focus:ring-0"
+              rows={3}
+              placeholder="SELECT文生成プロンプト入力"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
         </div>
       </div>
-    </div>
     </Layout >
   );
 }

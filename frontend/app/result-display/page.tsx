@@ -123,7 +123,13 @@ export default function ResultDisplayPage() {
             <button className="bg-[#0E538C] text-white rounded-md px-4 py-2 mr-4 cursor-pointer flex items-center" onClick={() => router.push('/select-query')}>
               再実行
             </button>
-            <button className="bg-[#FB5B01] text-white rounded-md px-4 py-2 mr-4 cursor-pointer flex items-center" onClick={() => router.push('/artifact-management')}>
+            <button
+              className="bg-[#FB5B01] text-white rounded-md px-4 py-2 mr-4 cursor-pointer flex items-center"
+              onClick={() => {
+                localStorage.setItem('seletedData', 'yes');
+                router.push('/artifact-management');
+              }}
+            >
               成果物生成
             </button>
           </div>
