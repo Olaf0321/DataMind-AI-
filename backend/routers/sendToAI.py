@@ -59,3 +59,29 @@ def send_select_prompt_to_openai(schema_info, selectPrompts, prompt, api_key):
     
     # Extract and return the output text
     return response.output_text
+
+def send_artifact_prompt_to_openai(artifactPrompts, data, prompt, api_key):
+    client = OpenAI(api_key=api_key)
+    totalPrompt = ""
+    
+    totalPrompt += f"これまであなたと私との会話履歴です。\n"
+    totalPrompt += f"************\n"
+    # Add previous prompts to the total prompt
+    for artifactPrompt in artifactPrompts:
+        totalPrompt += f"私： {artifactPrompt.プロンプト}\n"
+        totalPrompt += f"AI: {artifactPrompt.AI応答}\n"
+    totalPrompt += f"************\n"
+    
+    totalPrompt += f"データ: {data}\n"
+    totalPrompt += prompt
+    
+    print('totalPrompt', totalPrompt)
+    
+    # Send prompt
+    response = client.responses.create(
+        model='gpt-4o-mini',
+        input=totalPrompt,
+    )
+    
+    # Extract and return the output text
+    return response.output_text

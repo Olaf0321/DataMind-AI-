@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
-from models import タスク
+from models import タスク, SELECT文プロンプト, 成果物プロンプト
 from schemas.task import Status, TaskListResponse, TaskCreate, StatusAndResult
 from config import settings
 from database.init_db import get_db
@@ -58,5 +58,7 @@ async def read_users(db: Session = Depends(get_db)):
 @router.delete("/{task_id}", response_model=Status)
 async def delete_task(task_id: int, db: Session = Depends(get_db)):
     db.query(タスク).filter(タスク.id == task_id).delete()
+    db.query(SELECT文プロンプト).filter(SELECT文プロンプト.タスクID == task_id).delete()
+    db.query(成果物プロンプト).filter(成果物プロンプト.タスクID == task_id).delete()
     db.commit()
     return {"status": "タスクが正常に削除されました"}
