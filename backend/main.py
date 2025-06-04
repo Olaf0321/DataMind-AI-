@@ -36,6 +36,10 @@ app.include_router(artifactPrompt.router, prefix="/artifactPrompt", tags=["artif
 # Serve static avatar files
 app.mount("/avatars", StaticFiles(directory="uploads/avatars"), name="avatars")
 
+# Serve the static files (CSV downloads)
+generated_csv_path = os.path.join(os.path.dirname(__file__), 'outputs', 'generated')
+app.mount("/", StaticFiles(directory=generated_csv_path), name="static")
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to DataMind-AI API"}

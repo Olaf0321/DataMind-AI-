@@ -43,7 +43,8 @@ const initialFormValues: DatabaseFormValues = {
   'ユーザーID': -1,
 };
 
-const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ selectedId, selectedDatabase, userList, isOpen, onClose, onSubmit }) => {
+const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ selectedDatabase, userList, isOpen, onClose, onSubmit }) => {
+  console.log('userList', userList)
   const [Datatype, setDatatype] = useState('');
   const [formData, setFormData] = useState<DatabaseFormValues>({} as DatabaseFormValues);
 
@@ -166,7 +167,9 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ selectedId, selecte
           <div className="flex relative">
             <label className="text-[#898989] flex justify-center w-[40%] bg-white border-none p-2 rounded-l-md focus:outline-none focus:ring-0 relative">
               <span>ファイルパス</span>
-              <span className="text-[#FF6161] absolute right-2 top-2 text-[10px]" >必須</span>
+              <span 
+                className={`text-[#FF6161] absolute right-2 top-2 text-[10px] ${Datatype !== "Sqlite" && 'hidden'}`}
+              >必須</span>
             </label>
             <input
               type="file"
@@ -221,7 +224,30 @@ const AddDatabaseModal: React.FC<AddDatabaseModalProps> = ({ selectedId, selecte
               type="button"
               className="px-4 py-2 bg-[#0E538C] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
               onClick={() => {
-                console.log(formData);
+                if (formData['ホスト'] === '') {
+                  alert('ホストを入力してください。')
+                  return
+                }
+                if (formData['ポート'] === '') {
+                  alert('ポートを入力してください。')
+                  return
+                }
+                if (formData['データベース名'] === '') {
+                  alert('データベース名を入力してください。')
+                  return
+                }
+                if (formData['接続ID'] === '') {
+                  alert('接続IDを入力してください。')
+                  return
+                }
+                if (formData['パスワード'] === '') {
+                  alert('パスワードを入力してください。')
+                  return
+                }
+                if (formData['ユーザーID'] === -1) {
+                  alert('ユーザー名を入力してください。')
+                  return
+                }
                 onSubmit(formData);
                 setFormData(initialFormValues);
                 setDatatype("MySQL");

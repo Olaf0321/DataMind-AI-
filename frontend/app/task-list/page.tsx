@@ -37,7 +37,7 @@ export default function TaskListPage() {
 
   const getTaskList = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -53,7 +53,7 @@ export default function TaskListPage() {
 
   const addTask = async (data: TaskFormValues) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

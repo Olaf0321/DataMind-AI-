@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL")
     ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD")
     FRONTEND_URL: str = os.getenv("FRONTEND_URL")
+    SERVER_URL: str = os.getenv("SERVER_URL")
     ALGORITHM: str = os.getenv("ALGORITHM")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
     AZURE_OPENAI_ENDPOINT: str = os.getenv("AZURE_OPENAI_ENDPOINT")

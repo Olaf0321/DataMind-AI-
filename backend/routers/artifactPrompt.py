@@ -7,6 +7,7 @@ from datetime import datetime
 from routers.sendToAI import send_artifact_prompt_to_openai
 import os
 from routers.extractResultUrl import extract_result_url
+from config import settings
 
 router = APIRouter()
 
@@ -25,7 +26,7 @@ async def send_AI(data:Prompt, db: Session = Depends(get_db)):
     
     print('result', data);
     
-    response = send_artifact_prompt_to_openai(artifactPrompts, data.data, data.prompt, api_key)
+    response = send_artifact_prompt_to_openai(artifactPrompts, data.data, data.prompt, data.output, api_key)
     
     print('response', response)
     
@@ -35,11 +36,10 @@ async def send_AI(data:Prompt, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="AIへのプロンプト送信に失敗しました")
     
     result_url = ''
-    # result_url = extract_result_url(response)
     
-    # print("result-url:", result_url)
-    
-    # AIからの応答をデータベースに保存
+    if (data.output == 'CSV'):
+        result_url = extract_result_url(response, data.output)
+        result_url = f"{settings.SERVER_URL}/{result_url}"
     
     user_id = task.ユーザーID
     
@@ -48,7 +48,8 @@ async def send_AI(data:Prompt, db: Session = Depends(get_db)):
         ユーザーID=user_id,
         プロンプト=data.prompt,
         AI応答=response,
-        結果リンク=result_url
+        結果リンク=result_url,
+        出力形式=data.output
     )
     
     db.add(db_artifact)
@@ -58,7 +59,13 @@ async def send_AI(data:Prompt, db: Session = Depends(get_db)):
     
     # print("AIからの応答:", response)
     
-    return {"status": "AIへのプロンプト送信が成功しました", "response": response}
+    result = ''
+    if (data.output == 'CSV'):
+        result = result_url
+    elif (data.output == 'JSON'):
+        result = response
+
+    return {"status": "AIへのプロンプト送信が成功しました", "response": result}
 
 @router.get("/", response_model=ArtifactPromptListResponse)
 async def read_users(db: Session = Depends(get_db)):
@@ -71,7 +78,9 @@ async def read_users(db: Session = Depends(get_db)):
             "タスク名": db.query(タスク).filter(タスク.id == artifactPrompt.タスクID).first().タスク名,
             "ユーザー": db.query(ユーザー).filter(ユーザー.id == artifactPrompt.ユーザーID).first().名前,
             "プロンプト": artifactPrompt.プロンプト,
+            "AI応答": artifactPrompt.AI応答,
             "結果リンク": artifactPrompt.結果リンク,
+            "出力形式": artifactPrompt.出力形式,
             "作成日": artifactPrompt.作成日時.strftime("%Y-%m-%d %H:%M:%S")
         }
         reArtifactPrompts.append(reArtifactPrompt)
@@ -88,8 +97,9 @@ async def read_users(task_id: int, db: Session = Depends(get_db)):
             "タスク名": db.query(タスク).filter(タスク.id == artifactPrompt.タスクID).first().タスク名,
             "ユーザー": db.query(ユーザー).filter(ユーザー.id == artifactPrompt.ユーザーID).first().名前,
             "プロンプト": artifactPrompt.プロンプト,
-            "SELECT文": artifactPrompt.SELECT文,
-            "抽出データ数": artifactPrompt.抽出データ数,
+            "AI応答": artifactPrompt.AI応答,
+            "結果リンク": artifactPrompt.結果リンク,
+            "出力形式": artifactPrompt.出力形式,
             "作成日": artifactPrompt.作成日時.strftime("%Y-%m-%d %H:%M:%S"),
         }
         reArtifactPrompts.append(reArtifactPrompt)

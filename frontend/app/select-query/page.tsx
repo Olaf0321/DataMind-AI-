@@ -124,19 +124,19 @@ export default function SelectQueryPage() {
   return (
     <Layout title="SELECT文壁打ち画面">
       {isLoading && <LoadingSpinner />}
-      <div className="relative w-full h-[calc(100vh-300px)] p-10">
+      <div className="relative w-full h-[calc(100vh-300px)] py-10">
         <div className="w-full px-4 py-2 rounded-md bg-[#F1F1F1]">
           <span className="mr-10">タスク名</span>
           <span className="text-[#0E538C]">{task !== null && task['taskName']}</span>
         </div>
 
-        <div className="dialogue-container flex flex-col-reverse gap-4 text-[#5E5E5E] my-4 h-[68%] overflow-y-auto">
+        <div className="dialogue-container flex flex-col-reverse gap-7 text-[#5E5E5E] my-4 h-[68%] overflow-y-auto px-10">
           {/* Display existing prompts */}
           {selectPrompts !== undefined && selectPrompts.map((prompt: SelectPrompt) => (
             <React.Fragment key={prompt["id"]}>
               {/* GPT Message */}
-              <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 w-[50%] min-h-[100px]">
-                <div className="text-container mb-6">
+              <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 min-w-[70%] w-fit break-words">
+                <div className="text-container mb-6 whitespace-pre-wrap break-words">
                   <span>{prompt["抽出データ数"]} 件抽出しました。</span>
                 </div>
                 <div className="button-container absolute bottom-2 right-3 flex gap-2">
@@ -150,14 +150,14 @@ export default function SelectQueryPage() {
               </div>
 
               {/* User Message */}
-              <div className="user-container relative self-end bg-[#F1F1F1] rounded-xl px-4 py-2 w-[30%] min-h-[70px]">
+              <div className="user-container relative self-end bg-[#F1F1F1] rounded-xl px-4 py-2 min-w-[50%] w-fit break-words whitespace-pre-wrap min-h-[70px]">
                 {prompt["プロンプト"]}
               </div>
             </React.Fragment>
           ))}
 
           {/* GPT Message */}
-          <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 w-[50%] min-h-[100px]">
+          <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 w-[70%] min-h-[70px]">
             <div className="text-container mb-4">
               <span>何を抽出したいですか？</span>
             </div>

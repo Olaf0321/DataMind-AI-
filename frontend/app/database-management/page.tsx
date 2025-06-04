@@ -40,7 +40,7 @@ export default function DatabaseManagementPage() {
 
   const getDatabaseList = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database/`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -48,6 +48,7 @@ export default function DatabaseManagementPage() {
       });
 
       const resdata = await response.json();
+      console.log('resdata', resdata);
       setDatabaseList(resdata);
     } catch (error) {
       console.error('Error fetching database list:', error);
@@ -57,7 +58,7 @@ export default function DatabaseManagementPage() {
 
   const getUserList = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/user`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/user/`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -97,7 +98,7 @@ export default function DatabaseManagementPage() {
   const submitDatabase = async (data: DatabaseFormValues) => {
     try {
       if (selectedId === -1) {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/database/`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,

@@ -10,6 +10,7 @@ class 成果物プロンプト(Base):
     ユーザーID = Column(Integer, ForeignKey("ユーザー.id"), nullable=False)
     プロンプト = Column(String, nullable=False)
     AI応答 = Column(String, nullable=False)
-    結果リンク = Column(Integer, nullable=True)
+    結果リンク = Column(String, nullable=True)
+    出力形式 = Column(String, nullable=False)
     作成日時 = Column(DateTime, default=datetime.utcnow)
     更新日時 = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -60,7 +60,7 @@ def send_select_prompt_to_openai(schema_info, selectPrompts, prompt, api_key):
     # Extract and return the output text
     return response.output_text
 
-def send_artifact_prompt_to_openai(artifactPrompts, data, prompt, api_key):
+def send_artifact_prompt_to_openai(artifactPrompts, data, prompt, output, api_key):
     client = OpenAI(api_key=api_key)
     totalPrompt = ""
     
@@ -73,7 +73,8 @@ def send_artifact_prompt_to_openai(artifactPrompts, data, prompt, api_key):
     totalPrompt += f"************\n"
     
     totalPrompt += f"データ: {data}\n"
-    totalPrompt += prompt
+    totalPrompt += f"プロンプト: {prompt}\n"
+    totalPrompt += f"出力形式: {output}\n"
     
     print('totalPrompt', totalPrompt)
     
