@@ -3,7 +3,7 @@
 import Layout from "../../components/Layout";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useState } from "react";
 import React from "react";
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -38,6 +38,7 @@ export default function SelectQueryPage() {
   const [inputValue, setInputValue] = useState('');
   const [user, setUser] = useState<UserModel | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const getSelectPrompt = async () => {
     if (!task) return;
@@ -120,81 +121,75 @@ export default function SelectQueryPage() {
     getSelectPrompt();
   }, [task]);
 
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+      const maxHeight = 100; // px (adjust as needed)
+      if (textarea.scrollHeight > maxHeight) {
+        textarea.style.height = `${maxHeight}px`;
+        textarea.style.overflowY = 'auto';
+      } else {
+        textarea.style.overflowY = 'hidden';
+      }
+    }
+  }, [inputValue]);
 
   return (
     <Layout title="SELECT文壁打ち画面">
       {isLoading && <LoadingSpinner />}
-      <div className="relative w-full h-[calc(100vh-300px)] py-10">
-        <div className="w-full px-4 py-2 rounded-md bg-[#F1F1F1]">
+      <div className="relative w-full h-[calc(100vh-300px)] pt-10 flex flex-col items-center">
+        <div className="w-full p-4 rounded-4xl bg-[#F1F1F1]">
           <span className="mr-10">タスク名</span>
           <span className="text-[#0E538C]">{task !== null && task['taskName']}</span>
         </div>
 
-        <div className="dialogue-container flex flex-col-reverse gap-7 text-[#5E5E5E] my-4 h-[68%] overflow-y-auto px-10">
+        <div className="w-2/3 dialogue-container flex flex-col-reverse gap-7 text-[#5E5E5E] my-4 h-[68%] overflow-y-auto">
           {/* Display existing prompts */}
           {selectPrompts !== undefined && selectPrompts.map((prompt: SelectPrompt) => (
             <React.Fragment key={prompt["id"]}>
               {/* GPT Message */}
-              <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 min-w-[70%] w-fit break-words">
-                <div className="text-container mb-6 whitespace-pre-wrap break-words">
-                  <span>{prompt["抽出データ数"]} 件抽出しました。</span>
-                </div>
-                <div className="button-container absolute bottom-2 right-3 flex gap-2">
-                  <button className="cursor-pointer" onClick={() => router.push("/result-display")}>
-                    <Image src="/images/link.png" alt="link" width={20} height={15} />
-                  </button>
-                  <button className="cursor-pointer">
-                    <Image src="/images/more.png" alt="more" width={20} height={15} />
-                  </button>
+              <div className="flex">
+                <img src="/images/1.png" alt="DataMind-AI" className="h-[50px] w-[50px] mr-3" />
+                <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-4xl p-4 max-w-[70%] w-fit break-words">
+                  <div className="text-container whitespace-pre-wrap break-words">
+                    <span>{prompt["抽出データ数"]} 件抽出しました。</span>
+                    <button className="cursor-pointer" onClick={() => router.push("/result-display")}>
+                      <Image src="/images/link.png" alt="link" width={20} height={15} />
+                    </button>
+                  </div>
                 </div>
               </div>
 
               {/* User Message */}
-              <div className="user-container relative self-end bg-[#F1F1F1] rounded-xl px-4 py-2 min-w-[50%] w-fit break-words whitespace-pre-wrap min-h-[70px]">
+              <div className="user-container relative self-end bg-[#dbe7fb] rounded-4xl p-4 max-w-[50%] w-fit break-words whitespace-pre-wrap">
                 {prompt["プロンプト"]}
               </div>
             </React.Fragment>
           ))}
 
           {/* GPT Message */}
-          <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 w-[70%] min-h-[70px]">
-            <div className="text-container mb-4">
-              <span>何を抽出したいですか？</span>
-            </div>
-            <div className="button-container absolute bottom-0 right-3">
-              <button className="cursor-pointer">
-                <Image src="/images/more.png" alt="more" width={20} height={15} />
-              </button>
+          <div className="flex">
+            <img src="/images/1.png" alt="DataMind-AI" className="h-[50px] w-[50px] mr-3" />
+            <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-4xl p-4 max-w-[70%]">
+              <div className="text-container">
+                <span>何を抽出したいですか？</span>
+              </div>
             </div>
           </div>
         </div>
-
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[70%] h-[22%] p-2 rounded-xl bg-[#F1F1F1]">
-          <div className="flex justify-between">
-            <button className="cursor-pointer">
-              <Image src="/images/add.png" alt="add" width={15} height={15} />
-            </button>
-            <button className="cursor-pointer">
-              <Image src="/images/more.png" alt="more" width={20} height={15} />
-            </button>
-          </div>
-          {/* <div className="p-2">
-            <textarea
-              className="bg-[#F1F1F1] border-none w-full p-2 max-h-[90px] border border-gray-300 rounded-md focus:outline-none focus:ring-0"
-              rows={3}
-              placeholder="SELECT文生成プロンプト入力"
-            />
-          </div> */}
-          <div className="p-2">
-            <textarea
-              className="bg-[#F1F1F1] border-none w-full p-2 max-h-[90px] border border-gray-300 rounded-md focus:outline-none focus:ring-0"
-              rows={3}
-              placeholder="SELECT文生成プロンプト入力"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
+        <div className="absolute bottom-0 w-2/3">
+          <textarea
+            ref={textareaRef}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="SELECT文生成プロンプト入力..."
+            rows={1}
+            className="w-full resize-none overflow-hidden rounded-4xl border border-gray-300 bg-white px-4 py-3 text-bae text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-0"
+            style={{ maxHeight: '100px', overflowY: 'hidden' }}
+            onKeyDown={handleKeyDown}
+          />
         </div>
       </div>
     </Layout >

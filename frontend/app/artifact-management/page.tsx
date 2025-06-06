@@ -36,6 +36,7 @@ export default function ArtifactManagementPage() {
   const [selectedFormat, setSelectedFormat] = useState('');
   const [notification, setNotification] = useState('');
   const [output, setOutput] = useState('選択しない');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const getArtifactPrompt = async () => {
     if (!task) return;
@@ -153,6 +154,21 @@ export default function ArtifactManagementPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+      const maxHeight = 100; // px (adjust as needed)
+      if (textarea.scrollHeight > maxHeight) {
+        textarea.style.height = `${maxHeight}px`;
+        textarea.style.overflowY = 'auto';
+      } else {
+        textarea.style.overflowY = 'hidden';
+      }
+    }
+  }, [inputValue]);
+
   return (
     <Layout title="成果物壁打ち画面">
       {isLoading && <LoadingSpinner />}
@@ -172,8 +188,8 @@ export default function ArtifactManagementPage() {
           </motion.div>
         </AnimatePresence>
       )}
-      <div className="relative w-full h-[calc(100vh-300px)] py-10">
-        <div className="w-full px-4 py-2 rounded-md bg-[#F1F1F1] flex justify-between">
+      <div className="relative w-full h-[calc(100vh-300px)] pt-10 flex flex-col items-center">
+        <div className="w-full p-4 rounded-4xl bg-[#F1F1F1] flex justify-between">
           <div className="flex">
             <span className="mr-10">タスク名</span>
             <span className="text-[#0E538C]">{task !== null && task['taskName']}</span>
@@ -208,12 +224,12 @@ export default function ArtifactManagementPage() {
           </div>
         </div>
 
-        <div className="dialogue-container flex flex-col-reverse gap-7 text-[#5E5E5E] my-4 h-[68%] overflow-y-auto px-10">
+        <div className="w-2/3 dialogue-container flex flex-col-reverse gap-7 text-[#5E5E5E] my-4 h-[68%] overflow-y-auto">
           {/* Display existing prompts */}
           {artifactPrompts !== undefined && artifactPrompts.map((prompt: ArtifactPrompt) => (
             <React.Fragment key={prompt["id"]}>
               {/* GPT Message */}
-              <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 min-w-[70%] max-w-[70%] w-fit break-words">
+              {/* <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 min-w-[70%] max-w-[70%] w-fit break-words">
                 {prompt['出力形式'] === 'CSV' && (
                   <div className="text-container mb-6 whitespace-pre-wrap break-words">
                     <span>CSVファイルが生成されました。</span>
@@ -232,29 +248,57 @@ export default function ArtifactManagementPage() {
                     <Image src="/images/more.png" alt="more" width={20} height={15} />
                   </button>
                 </div>
+              </div> */}
+              <div className="flex">
+                <img src="/images/1.png" alt="DataMind-AI" className="h-[50px] w-[50px] mr-3" />
+                <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-4xl p-4 max-w-[70%] w-fit break-words">
+                  {prompt['出力形式'] === 'CSV' && (
+                    <div className="text-container whitespace-pre-wrap break-words">
+                      <span>CSVファイルが生成されました。</span>
+                      <a href={prompt["結果リンク"]} download={true}>
+                        <span className="underline">ダウンロード</span>
+                      </a>
+                    </div>
+                  )}
+                  {prompt['出力形式'] === 'JSON' && (
+                    <div className="text-container whitespace-pre-wrap break-words">
+                      <span>{prompt["AI応答"]}</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* User Message */}
-              <div className="user-container relative self-end bg-[#F1F1F1] rounded-xl px-4 py-2 min-w-[50%] w-fit break-words whitespace-pre-wrap min-h-[70px]">
+              <div className="user-container relative self-end bg-[#dbe7fb] rounded-4xl p-4 max-w-[50%] w-fit break-words whitespace-pre-wrap">
                 {prompt["プロンプト"]}
               </div>
             </React.Fragment>
           ))}
 
           {/* GPT Message */}
-          <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 w-[70%] min-h-[100px]">
-            <div className="text-container mb-4">
-              <span>成果物を生成するためのプロンプトを入力してください。</span>
-            </div>
-            <div className="button-container absolute bottom-0 right-3">
-              <button className="cursor-pointer">
-                <Image src="/images/more.png" alt="more" width={20} height={15} />
-              </button>
+          <div className="flex">
+            <img src="/images/1.png" alt="DataMind-AI" className="h-[50px] w-[50px] mr-3" />
+            <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-4xl p-4 max-w-[70%]">
+              <div className="text-container">
+                <span>成果物を生成するためのプロンプトを入力してください。</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[70%] h-[22%] p-2 rounded-xl bg-[#F1F1F1]">
+        <div className="absolute bottom-0 w-2/3">
+          <textarea
+            ref={textareaRef}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="成果物生成プロンプト入力..."
+            rows={1}
+            className="w-full resize-none overflow-hidden rounded-4xl border border-gray-300 bg-white px-4 py-3 text-bae text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-0"
+            style={{ maxHeight: '100px', overflowY: 'hidden' }}
+            onKeyDown={handleKeyDown}
+          />
+        </div>
+        {/* <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[70%] h-[22%] p-2 rounded-xl bg-[#F1F1F1]">
           <div className="flex justify-between">
             <button className="cursor-pointer">
               <Image src="/images/add.png" alt="add" width={15} height={15} />
@@ -273,7 +317,7 @@ export default function ArtifactManagementPage() {
               onKeyDown={handleKeyDown}
             />
           </div>
-        </div>
+        </div> */}
 
         <div className="absolute bottom-0 right-8 px-4 py-2 rounded-md bg-[#989898] text-white">
           <button className="cursor-pointer" onClick={() => setIsModalOpen(true)}>

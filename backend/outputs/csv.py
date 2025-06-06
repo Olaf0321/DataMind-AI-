@@ -38,6 +38,11 @@ def csv_output(text):
     match = re.search(r"```(.*?)```", text, re.DOTALL)
     if match:
         csv_data_str = match.group(1).strip()
+        
+        
+        # Remove leading "csv" keyword if present
+        if csv_data_str.lower().startswith('csv'):
+            csv_data_str = csv_data_str[3:].lstrip()
 
         # Convert to list of rows
         csv_file_like = StringIO(csv_data_str)
