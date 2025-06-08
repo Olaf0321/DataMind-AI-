@@ -176,13 +176,13 @@ export default function ArtifactManagementPage() {
         <AnimatePresence>
           <motion.div
             initial={{ x: '100%', opacity: 0 }}
-            animate={{ x: '-20px', opacity: 0.8 }}
+            animate={{ x: '-20px', opacity: 1 }}
             exit={{ x: '100%', opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="fixed bottom-16 right-4 bg-white shadow-xl rounded-xl px-4 py-2 z-50 text-gray-800"
+            className="fixed top-55 right-4 bg-[#ff8b49] shadow-xl rounded-4xl px-4 py-4 z-50 text-white"
           >
             <span className="text-lg flex items-center">
-              <Image src="/images/logo(1).png" alt="check" width={30} height={30} className="mr-2" />
+              <Image src="/images/logo(3).png" alt="check" width={30} height={30} className="mr-2" />
               {notification}
             </span>
           </motion.div>
@@ -195,7 +195,7 @@ export default function ArtifactManagementPage() {
             <span className="text-[#0E538C]">{task !== null && task['taskName']}</span>
           </div>
           <div className="relative flex items-center" ref={dropdownRef}>
-            <span className="mr-2 p-1 bg-[#FB5B01] rounded-lg text-sm text-white">{output}</span>
+            <span className="mr-2 p-1 bg-[#ff8b49] rounded-lg text-sm text-white">{output}</span>
             <span className="mr-2">出力形式</span>
             <button
               className="p-1 rounded-full hover:bg-gray-100 focus:outline-none cursor-pointer"
@@ -255,6 +255,14 @@ export default function ArtifactManagementPage() {
                   {prompt['出力形式'] === 'CSV' && (
                     <div className="text-container whitespace-pre-wrap break-words">
                       <span>CSVファイルが生成されました。</span>
+                      <a href={prompt["結果リンク"]} download={true}>
+                        <span className="underline">ダウンロード</span>
+                      </a>
+                    </div>
+                  )}
+                  {prompt['出力形式'] === 'SVG' && (
+                    <div className="text-container whitespace-pre-wrap break-words">
+                      <span>SVGファイルが生成されました。</span>
                       <a href={prompt["結果リンク"]} download={true}>
                         <span className="underline">ダウンロード</span>
                       </a>

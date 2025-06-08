@@ -1,0 +1,32 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .bar {
+      fill: #4CAF50;
+    }
+    .label {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      fill: #000;
+    }
+    .value {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      fill: #fff;
+      text-anchor: middle;
+    }
+  </style>
+  
+  <text x="20" y="20" class="label">営業マンの販売金額</text>
+  
+  <rect x="50" y="50" width="50" height="200" class="bar" />
+  <text x="75" y="140" class="value">222000</text>
+  <text x="50" y="250" class="label">佐藤 太郎</text>
+  
+  <rect x="150" y="100" width="50" height="150" class="bar" />
+  <text x="175" y="190" class="value">188000</text>
+  <text x="150" y="250" class="label">鈴木 花子</text>
+  
+  <rect x="250" y="200" width="50" height="50" class="bar" />
+  <text x="275" y="225" class="value">21000</text>
+  <text x="250" y="250" class="label">高橋 一郎</text>
+</svg>
