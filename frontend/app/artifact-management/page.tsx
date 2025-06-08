@@ -263,8 +263,8 @@ export default function ArtifactManagementPage() {
                   {prompt['出力形式'] === 'SVG' && (
                     <div className="text-container whitespace-pre-wrap break-words">
                       <span>SVGファイルが生成されました。</span>
-                      <a href={prompt["結果リンク"]} download={true}>
-                        <span className="underline">ダウンロード</span>
+                      <a href={prompt["結果リンク"]} target="_blank" rel="noopener noreferrer">
+                        <span className="underline">ファイルを見る</span>
                       </a>
                     </div>
                   )}
