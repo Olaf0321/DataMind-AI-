@@ -1,7 +1,7 @@
 'use client'
 import Layout from "../../components/Layout";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 interface Artifact {
@@ -18,6 +18,25 @@ interface Artifact {
 export default function ArtifactListPage() {
   const router = useRouter();
   const [artifactList, setArtifactList] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(7); // default fallback
+
+  const totalPages = useMemo(() => {
+    return Math.ceil(artifactList.length / pageSize);
+  }, [artifactList, pageSize]);
+
+  const paginatedArtifacts = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return artifactList.slice(startIndex, startIndex + pageSize);
+  }, [artifactList, currentPage, pageSize]);
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
 
   const getArtifactList = async () => {
     try {
@@ -28,7 +47,7 @@ export default function ArtifactListPage() {
         }
       });
       const data = await response.json();
-      data.artifactPrompts.sort((a:Artifact, b:Artifact) => new Date(b["作成日"]).getTime() - new Date(a["作成日"]).getTime());
+      data.artifactPrompts.sort((a: Artifact, b: Artifact) => new Date(b["作成日"]).getTime() - new Date(a["作成日"]).getTime());
       setArtifactList(data.artifactPrompts);
     } catch (error) {
       console.error('Error fetching artifact list:', error);
@@ -37,13 +56,36 @@ export default function ArtifactListPage() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-  
+
     if (!token) {
       router.push('/login');
     } else {
       getArtifactList();
     }
   }, [router]);
+
+  useEffect(() => {
+    const calculatePageSize = () => {
+      const vh = window.innerHeight;
+      const availableHeight = vh - 350; // corresponds to calc(100vh - 350px)
+      const estimatedRowHeight = 70;
+      const rows = Math.floor(availableHeight / estimatedRowHeight) - 1;
+      const newPageSize = rows > 0 ? rows : 1;
+
+      // 必要なときだけ状態を更新（レンダリング抑制）
+      setPageSize(prev => {
+        if (prev !== newPageSize) return newPageSize;
+        return prev;
+      });
+    };
+
+    calculatePageSize(); // 初回
+    window.addEventListener('resize', calculatePageSize);
+
+    return () => {
+      window.removeEventListener('resize', calculatePageSize);
+    };
+  }, []);
 
   return (
     <Layout title="成果物一覧画面">
@@ -97,7 +139,7 @@ export default function ArtifactListPage() {
                   <td colSpan={8} className="h-3"></td>
                 </tr>
                 {
-                  artifactList === undefined || artifactList.length === 0 ? (
+                  paginatedArtifacts === undefined || paginatedArtifacts.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="px-4 py-6 text-center text-[#737576]">
                         成果物がありません
@@ -105,18 +147,20 @@ export default function ArtifactListPage() {
                     </tr>
                   ) : null
                 }
-                {artifactList !== undefined && artifactList.length > 0 && artifactList.map((artifact, index) => (
+                {paginatedArtifacts !== undefined && paginatedArtifacts.length > 0 && paginatedArtifacts.map((artifact, index) => (
                   <tr key={index} className={index % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
-                    <td className={`px-4 py-6 ${index === 0 ? 'rounded-tl-md' : ''} ${index === artifactList.length - 1 ? 'rounded-bl-md' : ''}`}>{index+1}</td>
+                    <td className={`px-4 py-6 ${index === 0 ? 'rounded-tl-md' : ''} ${index === paginatedArtifacts.length - 1 ? 'rounded-bl-md' : ''}`}>
+                      {(currentPage - 1) * pageSize + index + 1}
+                    </td>
                     <td className="px-4 py-3">{artifact["タスク名"]}</td>
                     <td className="px-4 py-3">{artifact["出力形式"]}</td>
                     <td className="px-4 py-3 flex justify-center">
                       {artifact['出力形式'] === 'CSV' && (
-                      <div className="text-container whitespace-pre-wrap break-words">
-                        <a href={artifact["結果リンク"]} download={true}>
-                          <span className="underline">CSVファイルダウンロード</span>
-                        </a>
-                      </div>
+                        <div className="text-container whitespace-pre-wrap break-words">
+                          <a href={artifact["結果リンク"]} download={true}>
+                            <span className="underline">CSVファイルダウンロード</span>
+                          </a>
+                        </div>
                       )}
                       {artifact['出力形式'] === 'SVG' && (
                         <div className="text-container whitespace-pre-wrap break-words">
@@ -139,9 +183,9 @@ export default function ArtifactListPage() {
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      {new Date(artifact["作成日"]).toLocaleDateString()}
+                      {new Date(artifact["作成日"]).toLocaleString()}
                     </td>
-                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${index === 0 ? 'rounded-tr-md' : ''} ${index === artifactList.length - 1 ? 'rounded-br-md' : ''}`}>
+                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${index === 0 ? 'rounded-tr-md' : ''} ${index === paginatedArtifacts.length - 1 ? 'rounded-br-md' : ''}`}>
                       {artifact["ユーザー"]}
                     </td>
                   </tr>
@@ -151,15 +195,21 @@ export default function ArtifactListPage() {
           </div>
           <div className="flex justify-end items-center mt-auto pt-4 space-x-2">
             <span className="text-[#737576] mr-4">前へ</span>
-            <button className="px-2 py-1 mr-4">
+            <button
+              className="px-2 py-1 mr-4"
+              onClick={handlePrevPage}
+            >
               <Image src="/images/arrow-left.png" alt="arrow-left" width={10} height={10} className="cursor-pointer" />
             </button>
             <span className="text-[#737576] mr-4">
-              <span className="text-[#737576] w-4 bg-[#F5F5F5]">1</span>
+              <span className="text-[#737576] w-4 bg-[#F5F5F5]">{currentPage}</span>
               <span className="text-[#737576] w-2">/</span>
-              <span className="text-[#737576] w-4">1</span>
+              <span className="text-[#737576] w-4">{totalPages}</span>
             </span>
-            <button className="px-2 py-1 mr-4">
+            <button
+              className="px-2 py-1 mr-4"
+              onClick={handleNextPage}
+            >
               <Image src="/images/arrow-right.png" alt="arrow-right" width={10} height={10} className="cursor-pointer" />
             </button>
             <span className="text-[#737576]">次へ</span>
