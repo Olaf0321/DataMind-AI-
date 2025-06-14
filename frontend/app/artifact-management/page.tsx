@@ -107,10 +107,8 @@ export default function ArtifactManagementPage() {
     const labelMap = {
       1: 'HTML',
       2: 'SVG',
-      3: '画像',
-      4: 'CSV',
-      5: 'JSON',
-      6: 'PlantUML',
+      3: 'CSV',
+      4: 'JSON'
     };
 
     setSelectedFormat(value);
@@ -214,10 +212,8 @@ export default function ArtifactManagementPage() {
                 >
                   <option value="1" className="bg-[#F1F1F1]">HTML</option>
                   <option value="2">SVG</option>
-                  <option value="3" className="bg-[#F1F1F1]">画像</option>
-                  <option value="4">CSV</option>
-                  <option value="5" className="bg-[#F1F1F1]">JSON</option>
-                  <option value="6">PlantUML</option>
+                  <option value="3">CSV</option>
+                  <option value="4" className="bg-[#F1F1F1]">JSON</option>
                 </select>
               </div>
             )}
@@ -228,27 +224,6 @@ export default function ArtifactManagementPage() {
           {/* Display existing prompts */}
           {artifactPrompts !== undefined && artifactPrompts.map((prompt: ArtifactPrompt) => (
             <React.Fragment key={prompt["id"]}>
-              {/* GPT Message */}
-              {/* <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-xl px-4 py-2 min-w-[70%] max-w-[70%] w-fit break-words">
-                {prompt['出力形式'] === 'CSV' && (
-                  <div className="text-container mb-6 whitespace-pre-wrap break-words">
-                    <span>CSVファイルが生成されました。</span>
-                    <a href={prompt["結果リンク"]} download={true}>
-                      <span className="underline">ダウンロード</span>
-                    </a>
-                  </div>
-                )}
-                {prompt['出力形式'] === 'JSON' && (
-                  <div className="text-container mb-6 whitespace-pre-wrap break-words">
-                    <span>{prompt["AI応答"]}</span>
-                  </div>
-                )}
-                <div className="button-container absolute bottom-2 right-3 flex gap-2">
-                  <button className="cursor-pointer">
-                    <Image src="/images/more.png" alt="more" width={20} height={15} />
-                  </button>
-                </div>
-              </div> */}
               <div className="flex">
                 <img src="/images/1.png" alt="DataMind-AI" className="h-[50px] w-[50px] mr-3" />
                 <div className="gpt-container relative self-start bg-[#F1F1F1] rounded-4xl p-4 max-w-[70%] w-fit break-words">
@@ -263,6 +238,14 @@ export default function ArtifactManagementPage() {
                   {prompt['出力形式'] === 'SVG' && (
                     <div className="text-container whitespace-pre-wrap break-words">
                       <span>SVGファイルが生成されました。</span>
+                      <a href={prompt["結果リンク"]} target="_blank" rel="noopener noreferrer">
+                        <span className="underline">ファイルを見る</span>
+                      </a>
+                    </div>
+                  )}
+                  {prompt['出力形式'] === 'HTML' && (
+                    <div className="text-container whitespace-pre-wrap break-words">
+                      <span>HTMLファイルが生成されました。</span>
                       <a href={prompt["結果リンク"]} target="_blank" rel="noopener noreferrer">
                         <span className="underline">ファイルを見る</span>
                       </a>
@@ -334,7 +317,12 @@ export default function ArtifactManagementPage() {
         </div>
         <TaskEndModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            setIsModalOpen(false);
+            router.push('/artifact-list');
+            localStorage.removeItem('taskInfo');
+            localStorage.removeItem('selectedData');
+          }}
         />
       </div >
     </Layout >

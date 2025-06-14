@@ -72,6 +72,8 @@ def send_artifact_prompt_to_openai(artifactPrompts, data, prompt, output, api_ke
         totalPrompt += f"AI: {artifactPrompt.AI応答}\n"
     totalPrompt += f"************\n"
     
+    totalPrompt += f"上記の内容は参考にして次の処理を進めてください。\n"
+    
     totalPrompt += f"データ: {data}\n"
     totalPrompt += f"プロンプト: {prompt}\n"
     totalPrompt += f"出力形式: {output}\n"

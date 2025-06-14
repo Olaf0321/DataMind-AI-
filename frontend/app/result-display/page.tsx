@@ -13,7 +13,7 @@ export default function ResultDisplayPage() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const selectedData = localStorage.getItem('selectedData');
-    if (!selectedData) {
+    if (!selectedData || selectedData === 'undefined') {
       router.push('/task-list');
     } else if (!token) {
       router.push('/login');

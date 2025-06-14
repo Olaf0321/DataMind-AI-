@@ -37,7 +37,7 @@ async def send_AI(data:Prompt, db: Session = Depends(get_db)):
     
     result_url = ''
     
-    if data.output == 'CSV' or data.output == 'SVG':
+    if data.output == 'CSV' or data.output == 'SVG' or data.output == 'HTML':
         result_url = extract_result_url(response, data.output)
         result_url = f"{settings.SERVER_URL}/{result_url}"
     

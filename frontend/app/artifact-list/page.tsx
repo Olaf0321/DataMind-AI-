@@ -1,17 +1,47 @@
 'use client'
 import Layout from "../../components/Layout";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+
+interface Artifact {
+  "id": number,
+  "タスク名": string,
+  "ユーザー": string,
+  "プロンプト": string,
+  "AI応答": string,
+  "結果リンク": string,
+  "出力形式": string,
+  "作成日": string
+}
 
 export default function ArtifactListPage() {
   const router = useRouter();
+  const [artifactList, setArtifactList] = useState([]);
+
+  const getArtifactList = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/artifactPrompt/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const data = await response.json();
+      data.artifactPrompts.sort((a:Artifact, b:Artifact) => new Date(b["作成日"]).getTime() - new Date(a["作成日"]).getTime());
+      setArtifactList(data.artifactPrompts);
+    } catch (error) {
+      console.error('Error fetching artifact list:', error);
+    }
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token');
   
     if (!token) {
       router.push('/login');
+    } else {
+      getArtifactList();
     }
   }, [router]);
 
@@ -56,8 +86,8 @@ export default function ArtifactListPage() {
                 <tr>
                   <th className="px-4 py-4 rounded-l-md font-normal">ID</th>
                   <th className="px-4 py-3 font-normal">タスク名</th>
-                  <th className="px-4 py-3 font-normal">タスクid</th>
-                  <th className="px-4 py-3 font-normal">成果物へのパス</th>
+                  <th className="px-4 py-3 font-normal">出力形式</th>
+                  <th className="px-4 py-3 font-normal">成果物</th>
                   <th className="px-4 py-3 font-normal">生成日</th>
                   <th className="px-4 py-3 rounded-r-md font-normal">生成者</th>
                 </tr>
@@ -66,22 +96,53 @@ export default function ArtifactListPage() {
                 <tr>
                   <td colSpan={8} className="h-3"></td>
                 </tr>
-                {[...Array(9)].map((_, i) => (
-                  <tr key={i} className={i % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
-                    <td className={`px-4 py-6 ${i === 0 ? 'rounded-tl-md' : ''} ${i === 8 ? 'rounded-bl-md' : ''}`}>{i + 1}</td>
-                    <td className="px-4 py-3">売上集計</td>
-                    <td className="px-4 py-3">001</td>
+                {
+                  artifactList === undefined || artifactList.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-6 text-center text-[#737576]">
+                        成果物がありません
+                      </td>
+                    </tr>
+                  ) : null
+                }
+                {artifactList !== undefined && artifactList.length > 0 && artifactList.map((artifact, index) => (
+                  <tr key={index} className={index % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
+                    <td className={`px-4 py-6 ${index === 0 ? 'rounded-tl-md' : ''} ${index === artifactList.length - 1 ? 'rounded-bl-md' : ''}`}>{index+1}</td>
+                    <td className="px-4 py-3">{artifact["タスク名"]}</td>
+                    <td className="px-4 py-3">{artifact["出力形式"]}</td>
                     <td className="px-4 py-3 flex justify-center">
-                      <span className="mt-3">成果物へのパス</span>
-                      <a href="https://www.google.com" className="underline" target="_blank" rel="noopener noreferrer">
-                        <Image src="/images/go_link.png" className="mt-1" alt="link" width={10} height={10} />
-                      </a>
+                      {artifact['出力形式'] === 'CSV' && (
+                      <div className="text-container whitespace-pre-wrap break-words">
+                        <a href={artifact["結果リンク"]} download={true}>
+                          <span className="underline">CSVファイルダウンロード</span>
+                        </a>
+                      </div>
+                      )}
+                      {artifact['出力形式'] === 'SVG' && (
+                        <div className="text-container whitespace-pre-wrap break-words">
+                          <a href={artifact["結果リンク"]} target="_blank" rel="noopener noreferrer">
+                            <span className="underline">SVGファイルを見る</span>
+                          </a>
+                        </div>
+                      )}
+                      {artifact['出力形式'] === 'HTML' && (
+                        <div className="text-container whitespace-pre-wrap break-words">
+                          <a href={artifact["結果リンク"]} target="_blank" rel="noopener noreferrer">
+                            <span className="underline">HTMLファイルを見る</span>
+                          </a>
+                        </div>
+                      )}
+                      {artifact['出力形式'] === 'JSON' && (
+                        <div className="text-container whitespace-pre-wrap break-words">
+                          <span>{artifact["AI応答"]}</span>
+                        </div>
+                      )}
                     </td>
                     <td className="px-4 py-3">
-                      2025-05-10
+                      {new Date(artifact["作成日"]).toLocaleDateString()}
                     </td>
-                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${i === 0 ? 'rounded-tr-md' : ''} ${i === 8 ? 'rounded-br-md' : ''}`}>
-                      user123
+                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${index === 0 ? 'rounded-tr-md' : ''} ${index === artifactList.length - 1 ? 'rounded-br-md' : ''}`}>
+                      {artifact["ユーザー"]}
                     </td>
                   </tr>
                 ))}

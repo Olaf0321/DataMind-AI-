@@ -22,3 +22,5 @@ venv
 *.mp4
 *.mp3
 *.zip
+*.svg
+*.html
