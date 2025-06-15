@@ -18,8 +18,16 @@ interface Artifact {
 export default function ArtifactListPage() {
   const router = useRouter();
   const [artifactList, setArtifactList] = useState([]);
+  const [realArtifactList, setRealArtifactList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(7); // default fallback
+  const [selectedSearchMethodValue, setSelectedSearchMethodValue] = useState('1');
+  const [inputSearchValue, setInputSearchValue] = useState('');
+  const [selectedSearchValue, setSelectedSearchValue] = useState('0');
+  const [taskList, setTaskList] = useState([]);
+  const [userList, setUserList] = useState([]);
+  const [searchMethondList, setSearchMethodList] = useState(['全体', 'ID', 'タスク名', '出力形式', '生成日', '生成者']);
+  const [outputList, setOutputList] = useState(['HTML', 'SVG', 'CSV', 'JSON']);
 
   const totalPages = useMemo(() => {
     return Math.ceil(artifactList.length / pageSize);
@@ -48,11 +56,59 @@ export default function ArtifactListPage() {
       });
       const data = await response.json();
       data.artifactPrompts.sort((a: Artifact, b: Artifact) => new Date(b["作成日"]).getTime() - new Date(a["作成日"]).getTime());
+      setRealArtifactList(data.artifactPrompts);
       setArtifactList(data.artifactPrompts);
     } catch (error) {
       console.error('Error fetching artifact list:', error);
     }
   }
+
+  const getTaskList = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const data = await response.json();
+      setTaskList(data.tasks);
+    } catch (error) {
+      console.error('Error fetching artifact list:', error);
+    }
+  }
+
+  const getUserList = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/user/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const data = await response.json();
+      setUserList(data.users);
+    } catch (error) {
+      console.error('Error fetching artifact list:', error);
+    }
+  }
+
+  const containsCheck = (obj: Artifact, search: string): boolean => {
+    let str = '';
+    Object.entries(obj).map(([key, value]) => {
+      console.log('key', key);
+      console.log('value', value);
+      if (key !== "プロンプト" && key !== "AI応答") {
+        str += value;
+      }
+    });
+    return str.includes(search);
+  };
+
+  const contains = (text: string, search: string): boolean => {
+    const str = String(text);
+    return str.includes(search);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -61,6 +117,8 @@ export default function ArtifactListPage() {
       router.push('/login');
     } else {
       getArtifactList();
+      getTaskList();
+      getUserList();
     }
   }, [router]);
 
@@ -87,6 +145,40 @@ export default function ArtifactListPage() {
     };
   }, []);
 
+  useEffect(() => {
+    setInputSearchValue('');
+    setSelectedSearchValue('0');
+    if (selectedSearchMethodValue === '1' || selectedSearchMethodValue === '2' || selectedSearchMethodValue === '5') {
+      setArtifactList(realArtifactList);
+    } else if (selectedSearchMethodValue === '3') {
+      setArtifactList(realArtifactList.filter(artifact => artifact["タスク名"] === taskList[0]["タスク名"]));
+    } else if (selectedSearchMethodValue === '4') {
+      setArtifactList(realArtifactList.filter(artifact => artifact["出力形式"] === outputList[0]));
+    } else if (selectedSearchMethodValue === '6') {
+      setArtifactList(realArtifactList.filter(artifact => artifact["ユーザー"] === userList[0]["名前"]));
+    }
+  }, [selectedSearchMethodValue]);
+
+  useEffect(() => {
+    if (selectedSearchMethodValue === '1') {
+      setArtifactList(realArtifactList.filter(artifact => containsCheck(artifact, inputSearchValue)));
+    } else if (selectedSearchMethodValue === '2') {
+      setArtifactList(realArtifactList.filter(artifact => contains(artifact['id'], inputSearchValue)));
+    } else if (selectedSearchMethodValue === '5') {
+      setArtifactList(realArtifactList.filter(artifact => contains(artifact['作成日'], inputSearchValue)));
+    }
+  }, [inputSearchValue]);
+
+  useEffect(() => {
+    if (selectedSearchMethodValue === '3') {
+      setArtifactList(realArtifactList.filter(artifact => artifact['タスク名'] === taskList[Number(selectedSearchValue)]['タスク名']));
+    } else if (selectedSearchMethodValue === '4') {
+      setArtifactList(realArtifactList.filter(artifact => artifact['出力形式'] === outputList[Number(selectedSearchValue)]));
+    } else if (selectedSearchMethodValue === '6') {
+      setArtifactList(realArtifactList.filter(artifact => artifact['ユーザー'] === userList[Number(selectedSearchValue)]['名前']));
+    }
+  }, [selectedSearchValue]);
+
   return (
     <Layout title="成果物一覧画面">
       <div className="flex justify-end items-center mb-8">
@@ -98,21 +190,75 @@ export default function ArtifactListPage() {
             <select
               className="bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-r-md cursor-pointer 
                focus:outline-none focus:border-[#ED601E] focus:rounded-r-md"
+              value={selectedSearchMethodValue}
+              onChange={(e) => setSelectedSearchMethodValue(e.target.value)}
             >
-              <option value="1" className="bg-[#F1F1F1]">全体</option>
-              <option value="2">ID</option>
-              <option value="3" className="bg-[#F1F1F1]">タスク名</option>
-              <option value="4">タスクid</option>
-              <option value="5" className="bg-[#F1F1F1]">生成日</option>
-              <option value="6">生成者</option>
+              {searchMethondList.map((search, index) => (
+                <option key={index} value={index + 1} className={`${index % 2 === 1 ? "bg-[#F1F1F1]" : ''}`}>
+                  {search}
+                </option>
+              ))}
             </select>
           </div>
           <div className="search-task-input flex ml-4">
-            <input
-              type="text"
-              className="w-32 bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-l-md 
-               focus:outline-none focus:border-[#ED601E] focus:rounded-l-md"
-            />
+            {selectedSearchMethodValue === '1' || selectedSearchMethodValue === '2' || selectedSearchMethodValue === '5' ? (
+              <input
+                type="text"
+                className="w-32 bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-l-md 
+                 focus:outline-none focus:border-[#ED601E] focus:rounded-l-md"
+                value={inputSearchValue}
+                onChange={(e) => setInputSearchValue(e.target.value)}
+              />
+            ) : selectedSearchMethodValue === '3' ? (
+              <select
+                className="cursor-pointer w-32 bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-l-md 
+                focus:outline-none focus:border-[#ED601E] focus:rounded-l-md"
+                value={selectedSearchValue}
+                onChange={(e) => setSelectedSearchValue(e.target.value)}
+              >
+                {taskList.length === 0 ? (
+                  <option value="1" className="bg-[#F1F1F1]" disabled>
+                    作成されたタスクはありません。
+                  </option>
+                ) : (
+                  taskList.map((task, index) => (
+                    <option key={index + 1} value={String(index)} className={`${index % 2 === 1 ? "bg-[#F1F1F1]" : ''}`}>
+                      {task["タスク名"]}
+                    </option>
+                  ))
+                )}
+              </select>
+            ) : selectedSearchMethodValue === '4' ? (
+              <select
+                className="cursor-pointer w-32 bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-l-md 
+                focus:outline-none focus:border-[#ED601E] focus:rounded-l-md"
+                value={selectedSearchValue}
+                onChange={(e) => setSelectedSearchValue(e.target.value)}
+              >(
+                {outputList.map((output, index) => (
+                  <option key={index + 1} value={String(index)} className={`${index % 2 === 1 ? "bg-[#F1F1F1]" : ''}`}>{output}</option>
+                ))})
+              </select>
+            ) : selectedSearchMethodValue === '6' ? (
+              <select
+                className="cursor-pointer w-32 bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-l-md 
+                focus:outline-none focus:border-[#ED601E] focus:rounded-l-md"
+                value={selectedSearchValue}
+                onChange={(e) => setSelectedSearchValue(e.target.value)}
+              >
+                {userList.length === 0 ? (
+                  <option value="1" className="bg-[#F1F1F1]" disabled>
+                    登録されたユーザーがいません。
+                  </option>
+                ) : (
+                  userList.map((user, index) => (
+                    <option key={index + 1} value={String(index)} className={`${index % 2 === 1 ? "bg-[#F1F1F1]" : ''}`}>
+                      {user["名前"]}
+                    </option>
+                  ))
+                )}
+              </select>
+            ) : null}
             <label className="bg-[#ED601E] text-white px-4 py-2 border-[1px] border-[#ED601E] rounded-r-md flex justify-between items-center w-18">
               <span>検</span>
               <span>索</span>
@@ -150,7 +296,7 @@ export default function ArtifactListPage() {
                 {paginatedArtifacts !== undefined && paginatedArtifacts.length > 0 && paginatedArtifacts.map((artifact, index) => (
                   <tr key={index} className={index % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
                     <td className={`px-4 py-6 ${index === 0 ? 'rounded-tl-md' : ''} ${index === paginatedArtifacts.length - 1 ? 'rounded-bl-md' : ''}`}>
-                      {(currentPage - 1) * pageSize + index + 1}
+                      {artifact["id"]}
                     </td>
                     <td className="px-4 py-3">{artifact["タスク名"]}</td>
                     <td className="px-4 py-3">{artifact["出力形式"]}</td>
