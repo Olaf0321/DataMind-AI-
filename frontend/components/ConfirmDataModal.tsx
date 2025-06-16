@@ -1,13 +1,13 @@
 import React from 'react';
 import Image from 'next/image';
 
-interface TaskEndModalProps {
+interface ConfirmDataModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void; // 完了ボタンで実行する処理
 }
 
-const TaskEndModal: React.FC<TaskEndModalProps> = ({ isOpen, onClose, onConfirm }) => {
+const ConfirmDataModal: React.FC<ConfirmDataModalProps> = ({ isOpen, onClose, onConfirm }) => {
   if (!isOpen) return null;
 
   return (
@@ -21,7 +21,7 @@ const TaskEndModal: React.FC<TaskEndModalProps> = ({ isOpen, onClose, onConfirm 
           <Image src="/images/close.png" alt="close" width={20} height={20} />
         </button>
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-[25px] text-[#5E5E5E]">タスク完了の確認</h2>
+          <h2 className="text-[25px] text-[#5E5E5E]">データの確認</h2>
         </div>
 
         <form className="space-y-6 text-[15px]">
@@ -29,8 +29,7 @@ const TaskEndModal: React.FC<TaskEndModalProps> = ({ isOpen, onClose, onConfirm 
             <Image src="/images/success.png" alt="success" width={70} height={70} />
           </div>
           <div className="flex justify-center text-[#707070] text-center">
-            このタスクを本当に完了しますか？<br />
-            完了すると成果物が登録されます。
+            本当に現在のデータで結果を生成しますか？
           </div>
 
           <div className="flex justify-end space-x-4 mt-6">
@@ -46,7 +45,7 @@ const TaskEndModal: React.FC<TaskEndModalProps> = ({ isOpen, onClose, onConfirm 
               className="px-4 py-2 bg-[#0E538C] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
               onClick={onConfirm}
             >
-              完了
+              はい
             </button>
           </div>
         </form>
@@ -55,4 +54,4 @@ const TaskEndModal: React.FC<TaskEndModalProps> = ({ isOpen, onClose, onConfirm 
   );
 };
 
-export default TaskEndModal;
+export default ConfirmDataModal;

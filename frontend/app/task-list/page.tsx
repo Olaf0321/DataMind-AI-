@@ -67,7 +67,6 @@ export default function TaskListPage() {
         }),
       });
       const resdata = await response.json();
-      console.log('Add task response:', resdata);
       if (resdata.status === "タスクが正常に作成されました") {
         const taskInfo = resdata.task;
         localStorage.setItem('task', JSON.stringify({
@@ -75,6 +74,7 @@ export default function TaskListPage() {
           taskName: taskInfo['タスク名'],
           taskDescription: taskInfo['タスクの説明'],
         }));
+        localStorage.setItem('createSelect', 'YES');
         getTaskList();
       } else {
         alert('タスクの追加に失敗しました');
@@ -98,6 +98,9 @@ export default function TaskListPage() {
         return;
       }
       setIsModalOpen(false); // モーダルをすぐ閉じる
+      localStorage.removeItem('task');
+      localStorage.removeItem('selectedData');
+      localStorage.removeItem('confirmData');
       addTask(data);
       getUserDatabaseList(userId);
       router.push('/select-query');
@@ -222,6 +225,7 @@ export default function TaskListPage() {
                   <th className="px-4 py-3 font-normal">最終的に採用されたSelect文</th>
                   <th className="px-4 py-3 font-normal">作成者</th>
                   <th className="px-4 py-3 font-normal">作成日</th>
+                  <th className="px-4 py-3 font-normal">状態</th>
                   <th className="px-4 py-3 rounded-r-md font-normal">操作</th>
                 </tr>
               </thead>
@@ -244,6 +248,7 @@ export default function TaskListPage() {
                     <td className="px-4 py-3">{task['最終的に採用されたSelect文']}</td>
                     <td className="px-4 py-3">{task['作成者']}</td>
                     <td className="px-4 py-3 whitespace-nowrap">{task['作成日']}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">{task['状態']}</td>
 
                     {/* 操作 */}
                     <td className={`px-4 py-3 space-x-2 whitespace-nowrap text-center ${i === 0 ? 'rounded-tr-md' : ''} ${i === 8 ? 'rounded-br-md' : ''}`}>

@@ -74,13 +74,12 @@ async def update_task_select(
 @router.put("/{task_id}/final", response_model=Status)
 async def update_task_final(
     task_id: int,
-    final_update: FinalUpdate,  # ここでBodyとして受け取る
     db: Session = Depends(get_db)
 ):
     task = db.query(タスク).filter(タスク.id == task_id).first()
     if not task:
         return {"status": "タスクが見つかりません"}
-    task.状態 = final_update.final  # ボディの値を使う
+    task.状態 = '完了'
     db.commit()
     db.refresh(task)
     return {"status": "タスクのselectステートメントが更新されました。"}

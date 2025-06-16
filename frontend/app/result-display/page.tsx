@@ -3,25 +3,55 @@ import { useEffect, useState } from "react";
 
 import Layout from "../../components/Layout";
 import { useRouter } from 'next/navigation';
+import ConfirmDataModal from "../../components/ConfirmDataModal";
+
+interface TaskModel {
+  id: number;
+  taskName: string;
+  taskDescription: string;
+}
 
 export default function ResultDisplayPage() {
   const router = useRouter();
+  const [task, setTask] = useState<TaskModel | null>(null);
   const [filter, setFilter] = useState('1');
   const [selectedData, setSelectedData] = useState<[] | null>(null);
   const [keyValue, setKeyValue] = useState<string[] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmData, setConfirmData] = useState('');
+  const [disabledStatus, setDisabledStatus] = useState('False');
 
-  const updateTaskInfo = async () => {
+  const getFinalSelect = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/selectPrompt/${task['id']}/final`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        },
       });
       const data = await response.json();
-      data.selectPrompts.sort((a: Select, b: Select) => new Date(b["作成日"]).getTime() - new Date(a["作成日"]).getTime());
-      setRealSelectList(data.selectPrompts);
-      setSelectList(data.selectPrompts);
+      return data.selectPrompt;
+    } catch (error) {
+      console.error('Error fetching select list:', error);
+    }
+  }
+
+  const updateTaskSelect = async () => {
+    try {
+      const select1 = await getFinalSelect();
+      console.log('select1', select1);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/${task['id']}/select`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          select: select1['プロンプト']
+        }),
+      });
+      const data = await response.json();
+      console.log('result', data.status);
     } catch (error) {
       console.error('Error fetching select list:', error);
     }
@@ -30,12 +60,14 @@ export default function ResultDisplayPage() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const selectedData = localStorage.getItem('selectedData');
+    const taskInfo = localStorage.getItem('task') || null;
     if (!selectedData || selectedData === 'undefined') {
       router.push('/task-list');
     } else if (!token) {
       router.push('/login');
     } else {
       const jsonValue = JSON.parse(selectedData);
+      setTask(JSON.parse(taskInfo || '{}'));
       setSelectedData(jsonValue);
       const keys = [];
 
@@ -45,6 +77,17 @@ export default function ResultDisplayPage() {
       setKeyValue(keys);
     }
   }, [router]);
+
+  useEffect(() => {
+    if (confirmData === 'YES') setDisabledStatus('TRUE');
+  }, [confirmData])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('confirmData') || '';
+      setConfirmData(stored);
+    }
+  }, []);
 
   return (
     <Layout title="抽出結果表示画面">
@@ -107,21 +150,36 @@ export default function ResultDisplayPage() {
             </table>
           </div>
           <div className="flex justify-end items-center mt-auto pt-4 space-x-2">
-            <button className="bg-[#0E538C] text-white rounded-md px-4 py-2 mr-4 cursor-pointer flex items-center" onClick={() => router.push('/select-query')}>
+            <button
+              className={`bg-[#0E538C] text-white rounded-md px-4 py-2 mr-4 flex items-center ${disabledStatus === 'TRUE' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              disabled={disabledStatus}
+              onClick={() => router.push('/select-query')}
+            >
               再実行
             </button>
             <button
-              className="bg-[#FB5B01] text-white rounded-md px-4 py-2 mr-4 cursor-pointer flex items-center"
-              onClick={() => {
-                updateTaskInfo();
-                localStorage.setItem('seletedData', 'yes');
-                router.push('/artifact-management');
-              }}
+              className={`bg-[#FB5B01] text-white rounded-md px-4 py-2 mr-4 flex items-center ${disabledStatus === 'TRUE' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              disabled={disabledStatus}
+              onClick={() => { setIsModalOpen(true); }}
             >
               成果物生成
             </button>
           </div>
         </div>
+        <ConfirmDataModal
+          isOpen={isModalOpen}
+          onConfirm={() => {
+            setIsModalOpen(false);
+            setConfirmData('YES');
+            localStorage.setItem('confirmData', 'YES');
+            localStorage.removeItem('createSelect');
+            updateTaskSelect();
+            router.push('/artifact-management');
+          }}
+          onClose={() => {
+            setIsModalOpen(false);
+          }}
+        />
       </div>
     </Layout>
   );

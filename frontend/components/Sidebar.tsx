@@ -23,6 +23,8 @@ export default function Sidebar({ title }: SidebarProps) {
   const [role, setRole] = useState("");
   const [taskInfo, setTaskInfo] = useState('');
   const [selectedData, setSelectedData] = useState('');
+  const [confirmData, setConfirmData] = useState('');
+  const [createSelect, setCreateSelect] = useState('');
 
   const [menuItems, setMenuItems] = useState(initialMenuItems);
 
@@ -49,6 +51,8 @@ export default function Sidebar({ title }: SidebarProps) {
         return taskInfo === '' ? '現在作成されているタスクはありません。' : '';
       case '抽出結果表示画面':
         return selectedData === '' ? '現在抽出されたデータはありません。' : '';
+      case '成果物壁打ち画面':
+        return confirmData === '' ? '現在確認されたデータはありません。' : '';
       default:
         return '';
     }
@@ -67,9 +71,13 @@ export default function Sidebar({ title }: SidebarProps) {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       const taskInfo1 = localStorage.getItem('task') || '';
       const selectedData1 = localStorage.getItem('selectedData') || '';
+      const confirmData1 = localStorage.getItem('confirmData') || '';
+      const createSelect1 = localStorage.getItem('createSelect') || '';
       setRole(user['権限'] || "");
       setTaskInfo(taskInfo1);
       setSelectedData(selectedData1);
+      setConfirmData(confirmData1);
+      setCreateSelect(createSelect1);
     }
   }, []);
 
@@ -88,11 +96,14 @@ export default function Sidebar({ title }: SidebarProps) {
               <div
                 className="relative w-full"
                 onMouseEnter={() => {
-                  if (item.label === 'SELECT文壁打ち画面' && taskInfo === '') {
+                  if (item.label === 'SELECT文壁打ち画面' && createSelect === '') {
                     setTooltipMessage('現在作成されているタスクはありません。');
                     setTooltipVisible(true);
                   } else if (item.label === '抽出結果表示画面' && selectedData === '') {
                     setTooltipMessage('現在抽出されたデータはありません。');
+                    setTooltipVisible(true);
+                  } else if (item.label === '成果物壁打ち画面' && confirmData === '') {
+                    setTooltipMessage('現在確認されたデータはありません。');
                     setTooltipVisible(true);
                   }
                 }}
@@ -120,14 +131,16 @@ export default function Sidebar({ title }: SidebarProps) {
                   onClick={() => router.push(item.link)}
                   className={`w-full flex items-center px-6 py-3 text-sm font-medium rounded-l-full transition-colors
                     ${item.active ? 'bg-[#FB5B01] text-white' : 'hover:bg-[#2e4066] text-white'}
-                    ${item.label === 'SELECT文壁打ち画面' && taskInfo === '' ||
-                      item.label === '抽出結果表示画面' && selectedData === ''
+                    ${item.label === 'SELECT文壁打ち画面' && createSelect === '' ||
+                      item.label === '抽出結果表示画面' && selectedData === '' ||
+                      item.label === '成果物壁打ち画面' && confirmData === ''
                       ? 'opacity-50 cursor-not-allowed'
                       : 'cursor-pointer'}
     `}
                   disabled={
-                    item.label === 'SELECT文壁打ち画面' && taskInfo === '' ||
-                    item.label === '抽出結果表示画面' && selectedData === ''
+                    item.label === 'SELECT文壁打ち画面' && createSelect === '' ||
+                    item.label === '抽出結果表示画面' && selectedData === '' ||
+                    item.label === '成果物壁打ち画面' && confirmData === ''
                   }
                 >
                   <span className="mr-3">

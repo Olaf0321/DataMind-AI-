@@ -120,15 +120,30 @@ export default function ArtifactManagementPage() {
     setOutput(labelMap[value as keyof typeof labelMap]);
   };
 
+  const updateTaskFinal = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/${task['id']}/final`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const data = await response.json();
+      console.log('result', data.status);
+    } catch (error) {
+      console.error('Error fetching select list:', error);
+    }
+  }
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const taskInfo = localStorage.getItem('task') || null;
-    const selectedData = localStorage.getItem('selectedData') || null;
+    const confirmData = localStorage.getItem('confirmData');
 
     if (!token) {
       router.push('/login');
     } else {
-      if (taskInfo === null || selectedData === null) {
+      if (confirmData === undefined) {
         router.push('/task-list');
       } else {
         setTask(JSON.parse(taskInfo || '{}'));
@@ -289,27 +304,7 @@ export default function ArtifactManagementPage() {
             onKeyDown={handleKeyDown}
           />
         </div>
-        {/* <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[70%] h-[22%] p-2 rounded-xl bg-[#F1F1F1]">
-          <div className="flex justify-between">
-            <button className="cursor-pointer">
-              <Image src="/images/add.png" alt="add" width={15} height={15} />
-            </button>
-            <button className="cursor-pointer">
-              <Image src="/images/more.png" alt="more" width={20} height={15} />
-            </button>
-          </div>
-          <div className="p-2">
-            <textarea
-              className="bg-[#F1F1F1] border-none w-full p-2 max-h-[90px] border border-gray-300 rounded-md focus:outline-none focus:ring-0"
-              rows={3}
-              placeholder="成果物生成プロンプト入力"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-        </div> */}
-
+        
         <div className="absolute bottom-0 right-8 px-4 py-2 rounded-md bg-[#989898] text-white">
           <button className="cursor-pointer" onClick={() => setIsModalOpen(true)}>
             確 定
@@ -317,11 +312,17 @@ export default function ArtifactManagementPage() {
         </div>
         <TaskEndModal
           isOpen={isModalOpen}
+          onConfirm={() => {
+            setIsModalOpen(false);
+            updateTaskFinal();
+            router.push('/artifact-list');
+            localStorage.removeItem('task');
+            localStorage.removeItem('selectedData');
+            localStorage.removeItem('confirmData');
+            localStorage.removeItem('createSelect');
+          }}
           onClose={() => {
             setIsModalOpen(false);
-            router.push('/artifact-list');
-            localStorage.removeItem('taskInfo');
-            localStorage.removeItem('selectedData');
           }}
         />
       </div >

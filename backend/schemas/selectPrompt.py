@@ -31,3 +31,6 @@ class SelectPrompt(BaseModel):
 
 class SelectPromptListResponse(BaseModel):
     selectPrompts: List[SelectPrompt]
+    
+class SelectPromptResponse(BaseModel):
+    selectPrompt: SelectPrompt
