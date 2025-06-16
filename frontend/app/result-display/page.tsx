@@ -10,6 +10,23 @@ export default function ResultDisplayPage() {
   const [selectedData, setSelectedData] = useState<[] | null>(null);
   const [keyValue, setKeyValue] = useState<string[] | null>(null);
 
+  const updateTaskInfo = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const data = await response.json();
+      data.selectPrompts.sort((a: Select, b: Select) => new Date(b["作成日"]).getTime() - new Date(a["作成日"]).getTime());
+      setRealSelectList(data.selectPrompts);
+      setSelectList(data.selectPrompts);
+    } catch (error) {
+      console.error('Error fetching select list:', error);
+    }
+  }
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const selectedData = localStorage.getItem('selectedData');
@@ -51,36 +68,6 @@ export default function ResultDisplayPage() {
               ))}
             </select>
           </div>
-
-          {/* {filter !== '3' ? (
-            <div className="search-task-input flex ml-4">
-              <input
-                type="text"
-                className="w-32 bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-l-md 
-               focus:outline-none focus:border-[#ED601E] focus:rounded-l-md"
-              />
-              <label className="bg-[#ED601E] text-white px-4 py-2 border-[1px] border-[#ED601E] rounded-r-md flex justify-between items-center w-18">
-                <span>検</span>
-                <span>索</span>
-              </label>
-            </div>
-          ) : (
-            <div className="search-task-input flex ml-4">
-              <select
-                className="cursor-pointer w-32 bg-white border-[#ED601E] border-[1px] text-[#4C4C4C] px-3 py-2 rounded-l-md 
-               focus:outline-none focus:border-[#ED601E] focus:rounded-l-md"
-              >
-                <option value="1" className="bg-[#F1F1F1]">ユーザー1</option>
-                <option value="2">ユーザー2</option>
-                <option value="3" className="bg-[#F1F1F1]">ユーザー3</option>
-                <option value="4">ユーザー4</option>
-              </select>
-              <label className="bg-[#ED601E] text-white px-4 py-2 border-[1px] border-[#ED601E] rounded-r-md flex justify-between items-center w-18">
-                <span>選</span>
-                <span>択</span>
-              </label>
-            </div>
-          )} */}
         </div>
       </div>
       <div className="table-auto">
@@ -126,6 +113,7 @@ export default function ResultDisplayPage() {
             <button
               className="bg-[#FB5B01] text-white rounded-md px-4 py-2 mr-4 cursor-pointer flex items-center"
               onClick={() => {
+                updateTaskInfo();
                 localStorage.setItem('seletedData', 'yes');
                 router.push('/artifact-management');
               }}

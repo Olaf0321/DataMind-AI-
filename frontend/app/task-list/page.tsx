@@ -222,9 +222,6 @@ export default function TaskListPage() {
                   <th className="px-4 py-3 font-normal">最終的に採用されたSelect文</th>
                   <th className="px-4 py-3 font-normal">作成者</th>
                   <th className="px-4 py-3 font-normal">作成日</th>
-                  <th className="px-4 py-3 font-normal">成果物</th>
-                  <th className="px-4 py-3 font-normal">Select文生成プロンプト</th>
-                  <th className="px-4 py-3 font-normal">成果物生成プロンプト</th>
                   <th className="px-4 py-3 rounded-r-md font-normal">操作</th>
                 </tr>
               </thead>
@@ -247,36 +244,6 @@ export default function TaskListPage() {
                     <td className="px-4 py-3">{task['最終的に採用されたSelect文']}</td>
                     <td className="px-4 py-3">{task['作成者']}</td>
                     <td className="px-4 py-3 whitespace-nowrap">{task['作成日']}</td>
-
-                    {/* 成果物 */}
-                    <td className="px-4 py-3 text-center">
-                      <div className="inline-flex justify-center space-x-1">
-                        <span>成果物</span>
-                        <a onClick={() => router.push('/artifact-list')} className="cursor-pointer">
-                          <Image src="/images/go_link.png" alt="link" width={10} height={10} />
-                        </a>
-                      </div>
-                    </td>
-
-                    {/* Select文生成プロンプト */}
-                    <td className="px-4 py-3 text-center">
-                      <div className="inline-flex justify-center space-x-1">
-                        <span>Select文生成プロンプト</span>
-                        <a onClick={() => router.push('/select-history')} className="cursor-pointer">
-                          <Image src="/images/go_link.png" alt="link" width={10} height={10} />
-                        </a>
-                      </div>
-                    </td>
-
-                    {/* 成果物生成プロンプト */}
-                    <td className="px-4 py-3 text-center">
-                      <div className="inline-flex justify-center space-x-1">
-                        <span>成果物生成プロンプト</span>
-                        <a onClick={() => router.push('/artifact-history')} className="cursor-pointer">
-                          <Image src="/images/go_link.png" alt="link" width={10} height={10} />
-                        </a>
-                      </div>
-                    </td>
 
                     {/* 操作 */}
                     <td className={`px-4 py-3 space-x-2 whitespace-nowrap text-center ${i === 0 ? 'rounded-tr-md' : ''} ${i === 8 ? 'rounded-br-md' : ''}`}>
