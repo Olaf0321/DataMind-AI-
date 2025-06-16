@@ -12,6 +12,7 @@ class タスク(Base):
     最終的に採用されたSelect文 = Column(String, nullable=True)
     ユーザーID = Column(Integer, ForeignKey("ユーザー.id"), nullable=False)
     データベースID = Column(Integer, ForeignKey("外部データベース情報.id"), nullable=False)
+    状態 = Column(String, nullable=False)
     作成日時 = Column(DateTime, default=datetime.utcnow)
     更新日時 = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

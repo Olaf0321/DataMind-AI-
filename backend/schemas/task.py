@@ -6,6 +6,13 @@ from datetime import datetime
 class Status(BaseModel):
     status: str
     
+class SelectUpdate(BaseModel):
+    select: str
+    
+class FinalUpdate(BaseModel):
+    final: str
+
+    
 class Result(BaseModel):
     id: int
     タスク名: str
@@ -28,6 +35,7 @@ class Task(BaseModel):
     最終的に採用されたSelect文: str
     作成者: int
     作成日: datetime
+    状態: str
 
 class TaskListResponse(BaseModel):
     tasks: List[Task]
