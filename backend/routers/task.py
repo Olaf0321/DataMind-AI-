@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
-from models import タスク, SELECT文プロンプト, 成果物プロンプト
+from models import タスク, SELECT文プロンプト, 成果物プロンプト, ユーザー
 from schemas.task import Status, TaskListResponse, TaskCreate, StatusAndResult, SelectUpdate, FinalUpdate
 from config import settings
 from database.init_db import get_db
@@ -50,7 +50,7 @@ async def read_users(db: Session = Depends(get_db)):
             "タスク名": task.タスク名,
             "タスクの説明": task.タスクの説明,
             "最終的に採用されたSelect文": task.最終的に採用されたSelect文,
-            "作成者": task.ユーザーID,
+            "作成者": db.query(ユーザー).filter(ユーザー.id == task.ユーザーID).first().名前,
             "作成日": task.作成日時.strftime("%Y-%m-%d %H:%M:%S"),
             "状態": task.状態
         }

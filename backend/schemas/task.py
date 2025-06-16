@@ -33,7 +33,7 @@ class Task(BaseModel):
     タスク名: str
     タスクの説明: str
     最終的に採用されたSelect文: str
-    作成者: int
+    作成者: str
     作成日: datetime
     状態: str
 
