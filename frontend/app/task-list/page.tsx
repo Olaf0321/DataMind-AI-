@@ -362,10 +362,10 @@ export default function TaskListPage() {
         }
       });
       const data = await response.json();
+      setTaskList(data.tasks);
       data.tasks.sort((a: Task, b: Task) => new Date(b["作成日"]).getTime() - new Date(a["作成日"]).getTime());
       setRealTaskList(data.tasks);
       setDisplayTaskList(data.tasks);
-      setTaskList(data.tasks);
     } catch (error) {
       console.error('Error fetching task list:', error);
     }
@@ -465,6 +465,7 @@ export default function TaskListPage() {
       localStorage.removeItem('task');
       localStorage.removeItem('selectedData');
       localStorage.removeItem('confirmData');
+      localStorage.removeItem('createSelect');
       addTask(data);
       getUserDatabaseList(userId);
       router.push('/select-query');
