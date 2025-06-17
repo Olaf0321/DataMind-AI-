@@ -29,12 +29,52 @@ interface UserInfo {
   権限?: string;
 }
 
+interface UpdateUserInfo {
+  userName: string;
+  email: string;
+}
+
 export default function Header({ title }: HeaderProps) {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isChange, setIsChange] = useState(false);
+
+  const updateUserInfo = async (data: UpdateUserInfo) => {
+    alert('ookok');
+    console.log('updateUserInfo', data);
+    // try {
+    //   const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/user/`, {
+    //     method: 'PUT',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'Authorization': `Bearer ${localStorage.getItem('token')}`,
+    //     },
+    //     body: JSON.stringify({
+    //       userName: updateUserInfo.userName,
+    //       email: updateUserInfo.email
+    //     }),
+    //   });
+    //   const resdata = await response.json();
+    //   if (resdata.status === "タスクが正常に作成されました") {
+    //     const taskInfo = resdata.task;
+    //     localStorage.setItem('task', JSON.stringify({
+    //       id: taskInfo['id'],
+    //       taskName: taskInfo['タスク名'],
+    //       taskDescription: taskInfo['タスクの説明'],
+    //     }));
+    //     localStorage.setItem('createSelect', 'YES');
+    //     getTaskList();
+    //   } else {
+    //     alert('タスクの追加に失敗しました');
+    //   }
+    // } catch (error) {
+    //   console.error('Error adding task:', error);
+    //   alert('タスクの追加に失敗しました');
+    // }
+  }
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -106,25 +146,14 @@ export default function Header({ title }: HeaderProps) {
                 </div>
               )}
             </button>
-            {/* {dropdownOpen && user && (
-              <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                <div className="px-4 py-3 border-b">
-                  <div className="font-semibold text-gray-900">{user.名前}</div>
-                  <div className="text-sm text-gray-500">{user.メールアドレス}</div>
-                </div>
-                <button
-                  className="w-full text-left px-4 py-3 text-red-600 hover:bg-gray-100 rounded-b-lg cursor-pointer"
-                  onClick={handleLogout}
-                >
-                  ログアウト
-                </button>
-              </div>
-            )} */}
             {dropdownOpen && user && (
               <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                 <button
                   className="w-full text-left px-4 py-3 border-b focus:outline-none hover:bg-gray-100 cursor-pointer"
-                  onClick={()=>setIsModalOpen(true)} // You can define this function as needed
+                  onClick={() => {
+                    setIsModalOpen(true);
+                    setIsChange(false);
+                  }} // You can define this function as needed
                 >
                   <div className="font-semibold text-gray-900">{user.名前}</div>
                   <div className="text-sm text-gray-500">{user.メールアドレス}</div>
@@ -160,20 +189,26 @@ export default function Header({ title }: HeaderProps) {
         </div>
       </div>
       <UserModal
-          isOpen={isModalOpen}
-          onConfirm={() => {
-            // setIsModalOpen(false);
-            // updateTaskFinal();
-            // router.push('/artifact-list');
-            // localStorage.removeItem('task');
-            // localStorage.removeItem('selectedData');
-            // localStorage.removeItem('confirmData');
-            // localStorage.removeItem('createSelect');
-          }}
-          onClose={() => {
-            setIsModalOpen(false);
-          }}
-        />
+        isOpen={isModalOpen}
+        isChange={isChange}
+        onSubmit={(data) => {
+          // setIsModalOpen(false);
+          // updateTaskFinal();
+          // router.push('/artifact-list');
+          // localStorage.removeItem('task');
+          // localStorage.removeItem('selectedData');
+          // localStorage.removeItem('confirmData');
+          // localStorage.removeItem('createSelect');
+          updateUserInfo(data);
+          setIsChange(false);
+        }}
+        onChange={() => {
+          setIsChange(!isChange);
+        }}
+        onClose={() => {
+          setIsModalOpen(false);
+        }}
+      />
     </header>
   );
 } 
