@@ -324,7 +324,7 @@ export default function ArtifactListPage() {
                       )}
                       {artifact['出力形式'] === 'JSON' && (
                         <div className="text-container whitespace-pre-wrap break-words">
-                          <span>{artifact["AI応答"]}</span>
+                          <span>{artifact["結果リンク"]}</span>
                         </div>
                       )}
                     </td>

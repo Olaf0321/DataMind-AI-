@@ -105,7 +105,9 @@ export default function SelectQueryPage() {
     if (!token) {
       router.push('/login');
     }
-    if (taskInfo !== null) {
+    if (taskInfo === null) {
+      router.push('/task-list');
+    } else {
       setTask(JSON.parse(taskInfo || '{}'));
     }
     if (userInfo !== null) {

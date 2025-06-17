@@ -138,12 +138,12 @@ export default function ArtifactManagementPage() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const taskInfo = localStorage.getItem('task') || null;
-    const confirmData = localStorage.getItem('confirmData');
+    const confirmData = localStorage.getItem('confirmData') || null;
 
     if (!token) {
       router.push('/login');
     } else {
-      if (confirmData === undefined) {
+      if (confirmData === null) {
         router.push('/task-list');
       } else {
         setTask(JSON.parse(taskInfo || '{}'));

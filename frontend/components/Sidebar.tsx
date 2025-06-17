@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { PiArrowCounterClockwiseLight } from "react-icons/pi";
 
 const initialMenuItems = [
+  { label: "ホーム", icon: "/icons/menu-task-list.png", active: false, link: "/home" },
   { label: "タスク一覧画面", icon: "/icons/menu-task-list.png", active: false, link: "/task-list" },
   { label: "SELECT文壁打ち画面", icon: "/icons/menu-select-query.png", active: false, link: "/select-query" },
   { label: "抽出結果表示画面", icon: "/icons/menu-result-display.png", active: false, link: "/result-display" },
@@ -84,7 +85,9 @@ export default function Sidebar({ title }: SidebarProps) {
   return (
     <aside className="w-72 bg-[#00306A] text-white flex flex-col relative min-h-screen">
       <div className="flex items-center h-16 px-3 border-b border-[#2e4066] relative">
-        <Image src="/images/logo.png" alt="DATAMIND AI" className="cursor-pointer" width={140} height={36} />
+        <button onClick={()=>router.push('/home')}>
+          <Image src="/images/logo.png" alt="DATAMIND AI" className="cursor-pointer" width={140} height={36} />
+        </button>
         <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-md hover:bg-[#2e4066] lg:hidden">
           <FiMenu size={24} />
         </button>

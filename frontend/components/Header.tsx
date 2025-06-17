@@ -5,6 +5,7 @@ import { FaSearch, FaBell } from "react-icons/fa";
 import { FiSettings } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import UserModal from "./UserModal";
 
 const Description = [
   { label: "タスク一覧画面", description: "各タスクの状態、登録内容、関連成果物などを一目で把握" },
@@ -33,6 +34,7 @@ export default function Header({ title }: HeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -78,9 +80,6 @@ export default function Header({ title }: HeaderProps) {
         <h1 className="text-xl">{title}</h1>
         <div className="flex items-center space-x-4">
           <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
-            <FaSearch size={18} />
-          </button>
-          <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
             <FaBell size={18} />
           </button>
           <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
@@ -107,12 +106,29 @@ export default function Header({ title }: HeaderProps) {
                 </div>
               )}
             </button>
-            {dropdownOpen && user && (
+            {/* {dropdownOpen && user && (
               <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                 <div className="px-4 py-3 border-b">
                   <div className="font-semibold text-gray-900">{user.名前}</div>
                   <div className="text-sm text-gray-500">{user.メールアドレス}</div>
                 </div>
+                <button
+                  className="w-full text-left px-4 py-3 text-red-600 hover:bg-gray-100 rounded-b-lg cursor-pointer"
+                  onClick={handleLogout}
+                >
+                  ログアウト
+                </button>
+              </div>
+            )} */}
+            {dropdownOpen && user && (
+              <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <button
+                  className="w-full text-left px-4 py-3 border-b focus:outline-none hover:bg-gray-100 cursor-pointer"
+                  onClick={()=>setIsModalOpen(true)} // You can define this function as needed
+                >
+                  <div className="font-semibold text-gray-900">{user.名前}</div>
+                  <div className="text-sm text-gray-500">{user.メールアドレス}</div>
+                </button>
                 <button
                   className="w-full text-left px-4 py-3 text-red-600 hover:bg-gray-100 rounded-b-lg cursor-pointer"
                   onClick={handleLogout}
@@ -143,6 +159,21 @@ export default function Header({ title }: HeaderProps) {
           </div>
         </div>
       </div>
+      <UserModal
+          isOpen={isModalOpen}
+          onConfirm={() => {
+            // setIsModalOpen(false);
+            // updateTaskFinal();
+            // router.push('/artifact-list');
+            // localStorage.removeItem('task');
+            // localStorage.removeItem('selectedData');
+            // localStorage.removeItem('confirmData');
+            // localStorage.removeItem('createSelect');
+          }}
+          onClose={() => {
+            setIsModalOpen(false);
+          }}
+        />
     </header>
   );
 } 
