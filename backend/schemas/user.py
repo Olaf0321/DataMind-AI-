@@ -5,6 +5,10 @@ from datetime import datetime
 
 class Status(BaseModel):
     status: str
+    
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 class TokenData(BaseModel):
     email: Optional[str] = None
@@ -25,3 +29,10 @@ class UserListResponse(BaseModel):
 
 class Config:
     from_attributes = True 
+    
+class UserUpdateInfo(BaseModel):
+    id: int
+    名前: str
+    メールアドレス: EmailStr
+    アバター: str
+    権限: str

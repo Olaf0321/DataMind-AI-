@@ -285,7 +285,7 @@ export default function TaskListPage() {
     <Layout title="タスク一覧画面">
       <div className="flex justify-between items-center mb-8">
         <div className="add-task-button">
-          {/* <Image src="/images/123.gif" alt="arrow-left" width={100} height={100} className="cursor-pointer" /> */}
+          <Image src="/images/loading.gif" alt="arrow-left" width={100} height={100} className="cursor-pointer" />
           <button
             className="bg-[#0E538C] text-white px-6 py-2 rounded-md cursor-pointer flex justify-between items-center w-24"
             onClick={() => setIsModalOpen(true)}

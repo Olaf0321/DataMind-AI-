@@ -1,7 +1,9 @@
 import React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
+import { AxiosError } from 'axios';
+import axios from 'axios';
 
 
 interface UserFormValues {
@@ -13,7 +15,6 @@ interface AddUserModalProps {
   isChange: boolean;
   onClose: () => void;
   onChange: () => void;
-  onSubmit: (data: UserFormValues) => void;
 }
 
 interface UserInfo {
@@ -38,18 +39,35 @@ interface DatabaseFormValues {
 interface SignupForm {
   名前: string;
   メールアドレス: string;
-  パスワード: string;
-  パスワード確認: string;
   avatar?: FileList;
 }
 
-const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, isChange, onChange, onClose, onSubmit }) => {
+interface Status {
+  status: string
+}
+
+interface User {
+  'id': number;
+  '名前': string;
+  'メールアドレス': string;
+  'アバター': string;
+  '権限': string;
+}
+
+interface AuthResponse {
+  access_token: string;
+  token_type: string;
+}
+
+const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, isChange, onChange, onClose }) => {
   const [databaseList, setDatabaseList] = useState([]);
   const [userId, setUserId] = useState<number | -1>(-1);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<SignupForm>();
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<SignupForm>();
   const [user, setUser] = useState<UserInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>('');
 
   const [formData, setFormData] = React.useState<UserFormValues>({
     userName: '',
@@ -83,6 +101,64 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, isChange, onChange,
     }
   };
 
+  const updateUserInfo = useCallback(async (formData: FormData) => {
+    try {
+      const response = await axios.post<AuthResponse>(`${process.env.NEXT_PUBLIC_SERVER_URL}/user/update`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('response', response);
+
+      const { access_token } = response.data;
+      localStorage.setItem('token', access_token);
+
+      // Fetch user data after successful signup
+      const userResponse = await axios.get<User>(`${process.env.NEXT_PUBLIC_SERVER_URL}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+      
+      localStorage.setItem("user", JSON.stringify(userResponse.data));
+      return userResponse.data;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const onSubmit = async (data: SignupForm) => {
+    try {
+      setIsLoading(true);
+      setError('');
+
+      console.log('data', data);
+
+      const formData = new FormData();
+      formData.append('名前', data.名前);
+      formData.append('メールアドレス', data.メールアドレス);
+      formData.append('id', String(userId));
+
+      if (data.avatar?.[0]) {
+        formData.append('avatar', data.avatar[0]);
+      }
+
+      await updateUserInfo(formData);
+      onClose();
+      alert('ユーザー情報が正確に変更されました。');
+      // router.push('/task-list');
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        setError(err.response?.data?.detail || '登録に失敗しました');
+      } else {
+        setError('登録に失敗しました');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const id = Number(JSON.parse(localStorage.getItem("user") || "{}").id);
@@ -93,10 +169,12 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, isChange, onChange,
         try {
           const userData = JSON.parse(userStr);
           setUser(userData);
-          setFormData({
-            userName: userData['名前'],
-            email: userData['メールアドレス']
+          reset({
+            名前: userData['名前'],
+            メールアドレス: userData['メールアドレス'],
+            avatar: undefined
           })
+          setAvatarPreview('');
         } catch {
           setUser(null);
         }
@@ -120,7 +198,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, isChange, onChange,
           <h2 className="text-[25px] text-black">ユーザー情報</h2>
         </div>
 
-        <form className="space-y-4 text-[15px]">
+        <form className="space-y-4 text-[15px]" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex justify-center items-center mb-4 ml-2">
             <div className="mt-1 flex items-center space-x-4">
               <label
@@ -181,34 +259,54 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, isChange, onChange,
             </div>
           </div>
           <div className="flex relative">
-            <label className="text-[#898989] flex justify-center w-[40%] bg-white border-none p-3 rounded-l-md focus:outline-none focus:ring-0 relative">
+            <label className="text-[#898989] flex justify-center w-[45%] bg-white border-none p-3 rounded-l-md focus:outline-none focus:ring-0 relative">
               <span>ユーザー名</span>
             </label>
-            <input
-              type="text"
-              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${isChange === false && 'cursor-not-allowed'}`}
-              value={formData.userName}
-              disabled={!isChange}
-              onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
-            />
+            <div>
+              <input
+                id="名前"
+                type="text"
+                {...register('名前', { required: '名前を入力してください' })}
+                className={`w-full bg-white border-none p-3 rounded-r-md focus:outline-none focus:ring-0 ${isChange === false && 'cursor-not-allowed'}`}
+                disabled={!isChange}
+              // onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className='text-right'>
+            {errors.名前 && (
+              <p className="mt-2 text-sm text-red-600">{errors.名前.message}</p>
+            )}
           </div>
 
           <div className="flex relative">
-            <label className="text-[#898989] flex justify-center w-[40%] bg-white border-none p-3 rounded-l-md focus:outline-none focus:ring-0 relative">
+            <label className="text-[#898989] flex justify-center w-[45%] bg-white border-none p-3 rounded-l-md focus:outline-none focus:ring-0 relative">
               <span>メールアドレス</span>
             </label>
-            <input
-              type="text"
-              className={`w-[60%] bg-white border-none p-2 rounded-r-md focus:outline-none focus:ring-0 ${isChange === false && 'cursor-not-allowed'}`}
-              placeholder="example@domain.com"
-              value={formData.email}
-              disabled={!isChange}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            />
+            <div>
+              <input
+                id="メールアドレス"
+                type="email"
+                {...register('メールアドレス', {
+                  required: 'メールアドレスを入力してください',
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: '有効なメールアドレスを入力してください',
+                  },
+                })}
+                className={`w-full bg-white border-none p-3 rounded-r-md focus:outline-none focus:ring-0 ${isChange === false && 'cursor-not-allowed'}`}
+                disabled={!isChange}
+              />
+            </div>
+          </div>
+          <div className='text-right'>
+            {errors.メールアドレス && (
+              <p className="mt-2 text-sm text-red-600">{errors.メールアドレス.message}</p>
+            )}
           </div>
 
           <div className="flex relative">
-            <label className="text-[#898989] flex justify-center w-[40%] bg-white border-none p-3 rounded-l-md focus:outline-none focus:ring-0 relative">
+            <label className="text-[#898989] flex justify-center w-[45%] bg-white border-none p-3 rounded-l-md focus:outline-none focus:ring-0 relative">
               <span>データベース</span>
             </label>
             <select
@@ -228,22 +326,34 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, isChange, onChange,
           </div>
 
           <div className="flex justify-between space-x-4 mt-6">
+            {/* Submit button: only shown when isChange === true */}
+            {isChange && (
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="px-8 py-2 bg-[#0E538C] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
+              >
+                {isLoading ? '保存中...' : '保 存'}
+              </button>
+            )}
+
             <button
               type="button"
-              onClick={isChange === false ? onClose : onChange}
+              onClick={isChange ? onChange : onClose}
               className="px-8 py-2 bg-[#ED601E] rounded-md text-white hover:bg-[#d6541b] cursor-pointer"
             >
-              {isChange == false ? "閉   じ   る" : "キャンセル"}
+              {isChange ? 'キャンセル' : '閉   じ   る'}
             </button>
-            <button
-              type="button"
-              className="px-8 py-2 bg-[#0E538C] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
-              onClick={()=>
-                (isChange === false) ? onChange() : onSubmit(formData)
-              }
-            >
-              {isChange == false ? "編     集" : "保     存"}
-            </button>
+
+            {!isChange && (
+              <button
+                type="button"
+                className="px-8 py-2 bg-[#0E538C] text-white rounded-md hover:bg-[#1c2d5a] cursor-pointer"
+                onClick={onChange}
+              >
+                編    集
+              </button>
+            )}
           </div>
         </form>
       </div>
@@ -251,4 +361,4 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, isChange, onChange,
   );
 };
 
-export default AddUserModal; 
+export default AddUserModal;

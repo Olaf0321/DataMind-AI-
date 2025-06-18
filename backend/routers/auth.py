@@ -96,12 +96,21 @@ async def signup(
         
         # Save avatar file
         file_extension = os.path.splitext(avatar.filename)[1]
-        avatar_path = f"uploads/avatars/{メールアドレス}{file_extension}"
+        
+        # Generate a timestamp like "20250618_153045"
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Create the full filename
+        filename = f"{メールアドレス}_{timestamp}{file_extension}"
+
+        # File system path to save the file
+        avatar_path = f"uploads/avatars/{filename}"
+        
         with open(avatar_path, "wb") as buffer:
             content = await avatar.read()
             buffer.write(content)
         
-        avatar_path = f"avatars/{メールアドレス}{file_extension}"
+        avatar_path = f"avatars/{filename}"
     
     else:
         avatar_path = f"avatars/default.png"
