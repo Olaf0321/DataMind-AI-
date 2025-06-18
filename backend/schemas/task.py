@@ -27,7 +27,11 @@ class TaskCreate(BaseModel):
     taskDescription: str
     userId: int
     databaseId: int
-
+    
+class TaskCopy(BaseModel):
+    select: str
+    artifactPrompt: str
+    output: str
 class Task(BaseModel):
     id: int
     タスク名: str

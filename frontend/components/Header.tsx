@@ -191,7 +191,7 @@ export default function Header({ title }: HeaderProps) {
       <UserModal
         isOpen={isModalOpen}
         isChange={isChange}
-        onSubmit={(data) => {
+        onSubmit={(data: any) => {
           // setIsModalOpen(false);
           // updateTaskFinal();
           // router.push('/artifact-list');

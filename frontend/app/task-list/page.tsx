@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import AddTaskModal from '../../components/AddTaskModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import ConfirmReRunModal from "../../components/ConfirmReRunModal";
+import CopyUpdateModal from "../../components/CopyUpdateModal";
 
 interface TaskFormValues {
   taskName: string;
@@ -23,6 +24,12 @@ interface Task {
   "状態": string,
 }
 
+interface FormValues {
+  selectInfo: string;
+  artifactInfo: string;
+  output: string;
+}
+
 export default function TaskListPage() {
   const router = useRouter();
   const [realTaskList, setRealTaskList] = useState([]);
@@ -38,10 +45,12 @@ export default function TaskListPage() {
   const [isLoading, setIsLoading] = useState(Boolean);
   const [isModalOpen, setIsModalOpen] = useState(Boolean);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(Boolean);
+  const [isCopyModalOpen, setIsCopyModalOpen] = useState(Boolean);
   const [databaseList, setDatabaseList] = useState([]);
   const [userId, setUserId] = useState<number | -1>(-1);
   const [status, setStatus] = useState(['完了', '進行中']);
   const [selectedTaskID, setSelectedTaskID] = useState(-1);
+  const [copyTaskID, setCopyTaskID] = useState(-1);
 
   const totalPages = useMemo(() => {
     return Math.ceil(DisplayTaskList.length / pageSize);
@@ -204,30 +213,28 @@ export default function TaskListPage() {
     }
   }
 
-  const copyEvent = async (id: number) => {
-    // setIsLoading(true);
-    // try {
-    //   const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/copy/${id}`, {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       'Authorization': `Bearer ${localStorage.getItem('token')}`,
-    //     },
-    //     body: JSON.stringify({
-    //       taskId: task['id'],
-    //       prompt: inputValue,
-    //     }),
-    //   });
-    //   const resdata = await response.json();
-    //   console.log('AIからの応答:', resdata);
-    //   localStorage.setItem('selectedData', JSON.stringify(resdata.response));
-    //   getSelectPrompt();
-    // } catch (error) {
-    //   console.error('Error sending select prompt to AI:', error);
-    //   alert('AIへのプロンプト送信に失敗しました。');
-    // } finally {
-    //   setIsLoading(false);
-    // }
+  const copyEvent = async (id: number, data: FormValues) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/copy/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          select: data.selectInfo,
+          artifactPrompt: data.artifactInfo,
+          output: data.output
+        }),
+      });
+      getTaskList();
+    } catch (error) {
+      console.error('Error sending select prompt to AI:', error);
+      alert('AIへのプロンプト送信に失敗しました。');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const reEvent = async (id: number) => {
@@ -239,9 +246,6 @@ export default function TaskListPage() {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         }
       });
-      const resdata = await response.json();
-      console.log('AIからの応答:', resdata);
-      localStorage.setItem('selectedData', JSON.stringify(resdata.response));
       getTaskList();
     } catch (error) {
       console.error('Error sending select prompt to AI:', error);
@@ -475,7 +479,8 @@ export default function TaskListPage() {
                       <button
                         className="bg-[#629986] text-white px-3 py-1.5 rounded cursor-pointer"
                         onClick={() => {
-                          copyEvent(task["id"]);
+                          setIsCopyModalOpen(true);
+                          setCopyTaskID(task["id"]);
                         }}
                       >
                         コピー
@@ -536,10 +541,20 @@ export default function TaskListPage() {
         onConfirm={() => {
           setIsConfirmModalOpen(false);
           reEvent(selectedTaskID);
-          router.push('/artifact-management');
         }}
         onClose={() => {
           setIsConfirmModalOpen(false);
+        }}
+      />
+      <CopyUpdateModal
+        isOpen={isCopyModalOpen}
+        taskId={copyTaskID}
+        onSubmit={(data: FormValues) => {
+          setIsCopyModalOpen(false);
+          copyEvent(copyTaskID, data);
+        }}
+        onClose={() => {
+          setIsCopyModalOpen(false);
         }}
       />
     </Layout>

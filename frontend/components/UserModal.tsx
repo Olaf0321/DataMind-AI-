@@ -216,7 +216,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, isChange, onChange,
                   ) : (
                     <Image
                       src={
-                        user !== undefined &&
+                        user !== undefined && user !== null && user["アバター"] !== undefined &&
                         `${process.env.NEXT_PUBLIC_SERVER_URL}/${user["アバター"].replace(/^uploads\//, "")}`
                       }
                       alt="アバター"
