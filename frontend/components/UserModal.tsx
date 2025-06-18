@@ -120,7 +120,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, isChange, onChange,
           Authorization: `Bearer ${access_token}`,
         },
       });
-      
+
       localStorage.setItem("user", JSON.stringify(userResponse.data));
       return userResponse.data;
     } catch (error) {
@@ -216,8 +216,9 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, isChange, onChange,
                   ) : (
                     <Image
                       src={
-                        user !== undefined && user !== null && user["アバター"] !== undefined &&
-                        `${process.env.NEXT_PUBLIC_SERVER_URL}/${user["アバター"].replace(/^uploads\//, "")}`
+                        user && user["アバター"]
+                          ? `${process.env.NEXT_PUBLIC_SERVER_URL}/${user["アバター"].replace(/^uploads\//, "")}`
+                          : "/images/default-avatar.png" // fallback image
                       }
                       alt="アバター"
                       width={160}

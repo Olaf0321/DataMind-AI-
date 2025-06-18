@@ -13,7 +13,7 @@ export default function Layout({ title, children }: LayoutProps) {
       <Sidebar title={title} />
       <div className="flex-1 flex flex-col">
         <Header title={title} />
-        <main className="flex-1 px-8 py-4 bg-white">{children}</main>
+        <main className={`flex-1 ${title !== 'ホーム' && 'px-8 py-4'} bg-white`}>{children}</main>
       </div>
     </div>
   );

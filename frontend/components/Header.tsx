@@ -42,40 +42,6 @@ export default function Header({ title }: HeaderProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isChange, setIsChange] = useState(false);
 
-  const updateUserInfo = async (data: UpdateUserInfo) => {
-    alert('ookok');
-    console.log('updateUserInfo', data);
-    // try {
-    //   const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/user/`, {
-    //     method: 'PUT',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       'Authorization': `Bearer ${localStorage.getItem('token')}`,
-    //     },
-    //     body: JSON.stringify({
-    //       userName: updateUserInfo.userName,
-    //       email: updateUserInfo.email
-    //     }),
-    //   });
-    //   const resdata = await response.json();
-    //   if (resdata.status === "タスクが正常に作成されました") {
-    //     const taskInfo = resdata.task;
-    //     localStorage.setItem('task', JSON.stringify({
-    //       id: taskInfo['id'],
-    //       taskName: taskInfo['タスク名'],
-    //       taskDescription: taskInfo['タスクの説明'],
-    //     }));
-    //     localStorage.setItem('createSelect', 'YES');
-    //     getTaskList();
-    //   } else {
-    //     alert('タスクの追加に失敗しました');
-    //   }
-    // } catch (error) {
-    //   console.error('Error adding task:', error);
-    //   alert('タスクの追加に失敗しました');
-    // }
-  }
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       const userStr = localStorage.getItem("user");
@@ -170,38 +136,47 @@ export default function Header({ title }: HeaderProps) {
         </div>
       </div>
       {/* Info Card */}
-      <div className="flex justify-between px-8 py-6">
-        <div className="flex-1">
-          <div className="rounded-xl bg-gradient-to-r from-[#00306A] via-[#A77BB6] to-[#FB5B01] text-white shadow-lg flex items-center">
-            <div className="flex-1 p-6">
-              <div className="overflow-hidden w-full">
-                <div className="inline-block whitespace-nowrap animate-marquee text-2xl font-semibold">
-                  {
-                    Description.find((item) => item.label === title)?.description
-                  }
+      {
+        title !== 'ホーム' ? (
+          <div className="flex justify-between px-8 py-6">
+            <div className="flex-1">
+              <div className="rounded-xl bg-gradient-to-r from-[#00306A] via-[#A77BB6] to-[#FB5B01] text-white shadow-lg flex items-center">
+                <div className="flex-1 p-6">
+                  <div className="overflow-hidden w-full">
+                    <div className="inline-block whitespace-nowrap animate-marquee text-2xl font-semibold">
+                      {
+                        Description.find((item) => item.label === title)?.description
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div className="hidden md:block px-10 pt-2">
+                  <Image src="/images/header-image.png" alt="dashboard" width={160.5} height={80} />
                 </div>
               </div>
             </div>
-            <div className="hidden md:block px-10 pt-2">
-              <Image src="/images/header-image.png" alt="dashboard" width={160.5} height={80} />
+          </div>
+        ) : (
+          <div className="w-full">
+            <div className="w-full h-[50px] bg-[#00214C]">
+            </div>
+            <div className="hidden md:flex py-5 w-full items-center justify-center">
+              <Image
+                src="/images/DATAMIND.png"
+                width={100}
+                height={100}
+                alt="dashboard"
+                className="w-[60%]"
+              />
+            </div>
+            <div className="w-full h-[50px] bg-[#00214C]">
             </div>
           </div>
-        </div>
-      </div>
+        )
+      }
       <UserModal
         isOpen={isModalOpen}
         isChange={isChange}
-        onSubmit={(data: any) => {
-          // setIsModalOpen(false);
-          // updateTaskFinal();
-          // router.push('/artifact-list');
-          // localStorage.removeItem('task');
-          // localStorage.removeItem('selectedData');
-          // localStorage.removeItem('confirmData');
-          // localStorage.removeItem('createSelect');
-          updateUserInfo(data);
-          setIsChange(false);
-        }}
         onChange={() => {
           setIsChange(!isChange);
         }}
