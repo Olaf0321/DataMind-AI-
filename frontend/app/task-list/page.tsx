@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import AddTaskModal from '../../components/AddTaskModal';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import ConfirmReRunModal from "../../components/ConfirmReRunModal";
 
 interface TaskFormValues {
   taskName: string;
@@ -35,9 +37,11 @@ export default function TaskListPage() {
   const [searchMethondList, setSearchMethodList] = useState(['全体', 'ID', 'タスク名', 'タスクの説明', '最終的に採用されたSelect文', '生成日', '生成者', '状態']);
   const [isLoading, setIsLoading] = useState(Boolean);
   const [isModalOpen, setIsModalOpen] = useState(Boolean);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(Boolean);
   const [databaseList, setDatabaseList] = useState([]);
   const [userId, setUserId] = useState<number | -1>(-1);
   const [status, setStatus] = useState(['完了', '進行中']);
+  const [selectedTaskID, setSelectedTaskID] = useState(-1);
 
   const totalPages = useMemo(() => {
     return Math.ceil(DisplayTaskList.length / pageSize);
@@ -200,6 +204,53 @@ export default function TaskListPage() {
     }
   }
 
+  const copyEvent = async (id: number) => {
+    // setIsLoading(true);
+    // try {
+    //   const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/copy/${id}`, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'Authorization': `Bearer ${localStorage.getItem('token')}`,
+    //     },
+    //     body: JSON.stringify({
+    //       taskId: task['id'],
+    //       prompt: inputValue,
+    //     }),
+    //   });
+    //   const resdata = await response.json();
+    //   console.log('AIからの応答:', resdata);
+    //   localStorage.setItem('selectedData', JSON.stringify(resdata.response));
+    //   getSelectPrompt();
+    // } catch (error) {
+    //   console.error('Error sending select prompt to AI:', error);
+    //   alert('AIへのプロンプト送信に失敗しました。');
+    // } finally {
+    //   setIsLoading(false);
+    // }
+  }
+
+  const reEvent = async (id: number) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/re/${id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        }
+      });
+      const resdata = await response.json();
+      console.log('AIからの応答:', resdata);
+      localStorage.setItem('selectedData', JSON.stringify(resdata.response));
+      getTaskList();
+    } catch (error) {
+      console.error('Error sending select prompt to AI:', error);
+      alert('AIへのプロンプト送信に失敗しました。');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   useEffect(() => {
     const token = localStorage.getItem('token');
 
@@ -283,9 +334,9 @@ export default function TaskListPage() {
 
   return (
     <Layout title="タスク一覧画面">
+      {isLoading && <LoadingSpinner />}
       <div className="flex justify-between items-center mb-8">
         <div className="add-task-button">
-          <Image src="/images/loading.gif" alt="arrow-left" width={100} height={100} className="cursor-pointer" />
           <button
             className="bg-[#0E538C] text-white px-6 py-2 rounded-md cursor-pointer flex justify-between items-center w-24"
             onClick={() => setIsModalOpen(true)}
@@ -421,8 +472,23 @@ export default function TaskListPage() {
                     </td>
                     <td className="px-4 py-3">{task["状態"]}</td>
                     <td className={`px-4 py-3 space-x-2 whitespace-nowrap text-center ${index === 0 ? 'rounded-tr-md' : ''} ${index === 8 ? 'rounded-br-md' : ''}`}>
-                      <button className="bg-[#629986] text-white px-3 py-1.5 rounded cursor-pointer">コピー</button>
-                      <button className="bg-[#0E538C] text-white px-3 py-1.5 rounded cursor-pointer">実行</button>
+                      <button
+                        className="bg-[#629986] text-white px-3 py-1.5 rounded cursor-pointer"
+                        onClick={() => {
+                          copyEvent(task["id"]);
+                        }}
+                      >
+                        コピー
+                      </button>
+                      <button
+                        className="bg-[#0E538C] text-white px-3 py-1.5 rounded cursor-pointer"
+                        onClick={() => {
+                          setSelectedTaskID(task['id']);
+                          setIsConfirmModalOpen(true);
+                        }}
+                      >
+                        再実行
+                      </button>
                       <button
                         className="bg-[#ED601E] text-white px-3 py-1.5 rounded cursor-pointer"
                         onClick={() => {
@@ -464,6 +530,17 @@ export default function TaskListPage() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={onsubmit}
         userId={userId}
+      />
+      <ConfirmReRunModal
+        isOpen={isConfirmModalOpen}
+        onConfirm={() => {
+          setIsConfirmModalOpen(false);
+          reEvent(selectedTaskID);
+          router.push('/artifact-management');
+        }}
+        onClose={() => {
+          setIsConfirmModalOpen(false);
+        }}
       />
     </Layout>
   );

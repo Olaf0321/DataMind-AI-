@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useState } from "react";
 import React from "react";
-import LoadingSpinner from '../../components/LoadingSpinner';
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 interface TaskModel {
   id: number;

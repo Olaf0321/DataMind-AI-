@@ -29,38 +29,42 @@ export default function ResultDisplayPage() {
   const [searchMethodList, setSearchMethodList] = useState(['']);
 
   const getFinalSelect = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/selectPrompt/${task['id']}/final`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-      });
-      const data = await response.json();
-      return data.selectPrompt;
-    } catch (error) {
-      console.error('Error fetching select list:', error);
+    if (task !== null) {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/selectPrompt/${task['id']}/final`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+        });
+        const data = await response.json();
+        return data.selectPrompt;
+      } catch (error) {
+        console.error('Error fetching select list:', error);
+      }
     }
   }
 
   const updateTaskSelect = async () => {
-    try {
-      const select1 = await getFinalSelect();
-      console.log('select1', select1);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/${task['id']}/select`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          select: select1['SELECT文']
-        }),
-      });
-      const data = await response.json();
-      console.log('result', data.status);
-    } catch (error) {
-      console.error('Error fetching select list:', error);
+    if (task !== null) {
+      try {
+        const select1 = await getFinalSelect();
+        console.log('select1', select1);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/${task['id']}/select`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            select: select1['SELECT文']
+          }),
+        });
+        const data = await response.json();
+        console.log('result', data.status);
+      } catch (error) {
+        console.error('Error fetching select list:', error);
+      }
     }
   }
 

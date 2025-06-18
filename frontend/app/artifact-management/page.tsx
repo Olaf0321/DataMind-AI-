@@ -20,7 +20,9 @@ interface ArtifactPrompt {
   "タスク名": string,
   "ユーザー": string,
   "プロンプト": string,
-  "抽出データ数": number
+  "AI応答": string,
+  "結果リンク": string,
+  "出力形式": string,
   "作成日": string,
 }
 
@@ -121,17 +123,19 @@ export default function ArtifactManagementPage() {
   };
 
   const updateTaskFinal = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/${task['id']}/final`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      const data = await response.json();
-      console.log('result', data.status);
-    } catch (error) {
-      console.error('Error fetching select list:', error);
+    if (task !== null) {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/task/${task['id']}/final`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        const data = await response.json();
+        console.log('result', data.status);
+      } catch (error) {
+        console.error('Error fetching select list:', error);
+      }
     }
   }
 
