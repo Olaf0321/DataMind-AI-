@@ -85,7 +85,7 @@ export default function Sidebar({ title }: SidebarProps) {
   return (
     <aside className="w-72 bg-[#00306A] text-white flex flex-col relative min-h-screen">
       <div className="flex items-center h-16 px-3 border-b border-[#2e4066] relative">
-        <button onClick={()=>router.push('/home')}>
+        <button onClick={() => router.push('/home')}>
           <Image src="/images/logo.png" alt="DATAMIND AI" className="cursor-pointer" width={140} height={36} />
         </button>
         <button className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-md hover:bg-[#2e4066] lg:hidden">
@@ -132,14 +132,17 @@ export default function Sidebar({ title }: SidebarProps) {
                 {/* Button */}
                 <button
                   onClick={() => router.push(item.link)}
-                  className={`w-full flex items-center px-6 py-3 text-sm font-medium rounded-l-full transition-colors
+                  className={`w-full flex items-center px-6 py-3 text-sm font-medium rounded-l-full
+                    transition-colors transition-transform duration-150 ease-in-out
+                    active:scale-[0.97]
                     ${item.active ? 'bg-[#FB5B01] text-white' : 'hover:bg-[#2e4066] text-white'}
                     ${item.label === 'SELECT文壁打ち画面' && createSelect === '' ||
                       item.label === '抽出結果表示画面' && selectedData === '' ||
                       item.label === '成果物壁打ち画面' && confirmData === ''
                       ? 'opacity-50 cursor-not-allowed'
                       : 'cursor-pointer'}
-    `}
+                  `}
+
                   disabled={
                     item.label === 'SELECT文壁打ち画面' && createSelect === '' ||
                     item.label === '抽出結果表示画面' && selectedData === '' ||

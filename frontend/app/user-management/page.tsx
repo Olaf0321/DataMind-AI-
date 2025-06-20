@@ -28,6 +28,12 @@ export default function TaskListPage() {
         return;
       }
 
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(data.email)) {
+        alert('有効なメールアドレスを入力してください');
+        return;
+      }
+
       const { userName, email, password } = data;
       console.log(userName, email, password);
 
@@ -35,8 +41,8 @@ export default function TaskListPage() {
       formData.append('名前', userName);
       formData.append('メールアドレス', email);
       formData.append('パスワード', password);
-  
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/user`, {
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/user/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -44,7 +50,7 @@ export default function TaskListPage() {
         },
         body: formData,
       });
-  
+
       const resdata = await response.json();
       if (resdata.status === 'ユーザーが正常に作成されました') {
         alert('ユーザーが正常に作成されました');
@@ -179,12 +185,12 @@ export default function TaskListPage() {
                 )}
                 {userList.length > 0 && userList.map((user, i) => (
                   <tr key={i} className={i % 2 === 1 ? 'bg-[#E9E9E9]' : 'bg-[#F5F5F5]'}>
-                    <td className={`px-4 py-6 ${i === 0 ? 'rounded-tl-md' : ''} ${i === userList.length-1 ? 'rounded-bl-md' : ''}`}>{user['id']}</td>
+                    <td className={`px-4 py-6 ${i === 0 ? 'rounded-tl-md' : ''} ${i === userList.length - 1 ? 'rounded-bl-md' : ''}`}>{user['id']}</td>
                     <td className="px-4 py-3">{user['名前']}</td>
                     <td className="px-4 py-3">{user['メールアドレス']}</td>
                     <td className="px-4 py-3">{user['作成日時']}</td>
                     <td className="px-4 py-3">{user['更新日時']}</td>
-                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${i === 0 ? 'rounded-tr-md' : ''} ${i === userList.length-1 ? 'rounded-br-md' : ''}`}>
+                    <td className={`px-4 py-3 space-x-2 whitespace-nowrap ${i === 0 ? 'rounded-tr-md' : ''} ${i === userList.length - 1 ? 'rounded-br-md' : ''}`}>
                       <button
                         className="bg-[#ED601E] text-white px-6 py-2 rounded cursor-pointer"
                         onClick={() => {

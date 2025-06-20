@@ -24,7 +24,7 @@ export default function LoginPage() {
       setIsLoading(true);
       setError('');
       await login(data.username, data.password);
-      router.push('/task-list');
+      router.push('/home');
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.detail || 'ログインに失敗しました');

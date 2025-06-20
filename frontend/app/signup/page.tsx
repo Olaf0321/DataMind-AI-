@@ -51,7 +51,7 @@ export default function SignupPage() {
       }
 
       await signup(formData);
-      router.push('/task-list');
+      router.push('/home');
     } catch (err) {
       if (err instanceof AxiosError) {
         setError(err.response?.data?.detail || '登録に失敗しました');
